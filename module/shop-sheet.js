@@ -1510,7 +1510,7 @@ export default class EPshopSheet extends HandlebarsApplicationMixin(ActorSheetV2
     // Settings-tab info icons - same api().ui.moreInfo()/pop-up.html mechanism EPactorSheet.js/
     // EPitemSheet.js already use, Owner-only since only the settings tab has any.
     html.querySelectorAll("a.moreInfoDialog").forEach(element => {
-      element.addEventListener("click", moreInfo);
+      element.addEventListener("click", api().ui.moreInfo);
     });
 
     // Settings-tab number/text inputs select their full value on focus, so typing immediately

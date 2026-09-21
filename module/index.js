@@ -12,6 +12,9 @@ const BURN_BONUS_PER_POINT = 2;
 const MORPH_TIER_THRESHOLDS = { moderate: 2, major: 5, rare: 8 };
 
 const SHOP_TEMPLATES = [
+  // The roll-dialog slot renders as a Handlebars partial, which is synchronous - it has to be
+  // preloaded here or the slot finds nothing to render.
+  "modules/eclipsephase-shop/templates/roll-dialog-section.html",
   "modules/eclipsephase-shop/templates/shop-footer.html",
   "modules/eclipsephase-shop/templates/shop-inventory-panel.html",
   "modules/eclipsephase-shop/templates/shop-to-sell-list.html"
@@ -122,14 +125,22 @@ Hooks.on("eclipsephase.prepareItemData", (item, itemModel) => {
 
 /**
  * Moves one legacy shop actor onto this module's own type, keeping its id so scene tokens still
- * resolve. A bare update({type}) fails silently in Foundry, so the result is judged by the type
- * the document actually carries afterwards, never by the absence of an exception.
+ * resolve. Changing a type demands that system data be replaced wholesale, and all three options
+ * matter: _replace marks the replacement, diff:false stops the server from diffing the payload
+ * apart (which loses that marker on the way back), and recursive:false keeps the root key from
+ * being merged. A failed type change can either throw or pass silently, so the result is judged
+ * by the type the document actually carries afterwards.
  * @param {Actor} actor - The legacy shop actor
  * @returns {Promise<Boolean>} Whether the actor now carries this module's type
  */
 async function migrateShopActor(actor) {
   const stored = actor.toObject().system ?? {};
-  await actor.update({ type: SHOP_TYPE, system: _replace(stored) });
+  try {
+    await actor.update({ type: SHOP_TYPE, system: _replace(stored) }, { diff: false, recursive: false });
+  } catch (error) {
+    console.error(`Eclipse Phase Shops | "${actor.name}" could not be migrated:`, error);
+    return false;
+  }
   return actor.type === SHOP_TYPE;
 }
 

@@ -1,4 +1,5 @@
 import { completeShopPurchase, hasFreeFavorSlot, LOYALTY_PER_TIER, getLoyaltyLevel, postShopChatMessage, shopRepIconHtml } from "./shop-logic.js";
+import { applicablePurchaseModes, isPurchaseModeAvailable } from "./purchase-modes.js";
 
 /**
  * The system's public API. Read lazily, since this feature is imported before init builds it.
@@ -335,7 +336,7 @@ export default class EPshopSheet extends HandlebarsApplicationMixin(ActorSheetV2
   // mission's Morph Points instead) - blocks every entry point (drop/stage, Cash in Favor, Buy),
   // not just the roll/charge itself.
   _isMorphBlocked(items) {
-    return !game.settings.get("eclipsephase", "superBrew") && items.some(item => item.type === "morph");
+    return !isPurchaseModeAvailable("buy", this._purchaseContext()) && items.some(item => item.type === "morph");
   }
 
   // Rare gear needs at least Orange (level 2) Loyalty standing, gated behind loyaltyEnabled.
@@ -470,6 +471,34 @@ export default class EPshopSheet extends HandlebarsApplicationMixin(ActorSheetV2
   }
 
   /**
+   * What a purchase mode needs to decide whether it applies right now. Built here so every mode,
+   * the shop's own and a house rule's alike, judges the same picture of the shop.
+   * @param {Boolean} [isOwnerView] - Whether the sheet is shown to the shop's owner
+   * @returns {Object} The purchase context
+   */
+  _purchaseContext(isOwnerView = game.user.isGM || this.actor.isOwner) {
+    const purchaseNetworks = isOwnerView ? [] : this._getPurchaseNetworkOptions();
+    return {
+      sheet: this,
+      shop: this.actor,
+      character: game.user.character,
+      isOwnerView,
+      purchaseNetworks,
+      hasSelection: !isOwnerView && this._selectedForPurchase.size > 0,
+      hasStaged: this._toSell.size > 0,
+      salesOpen: !this._isClosedForSelling()
+    };
+  }
+
+  /**
+   * The purchase modes offered for the shop's current state, in footer-button order.
+   * @returns {Object[]} The applicable mode definitions
+   */
+  _availablePurchaseModes() {
+    return applicablePurchaseModes(this._purchaseContext());
+  }
+
+  /**
    * Which state the merged Buy/Trade/Sell footer button is in, and whether it and Cash-in-Favor
    * should show at all. Owner never has a purchase selection (Buying is Observer-only), so only
    * ever resolves to "sell". Mirrors the same gates each action already checks on its own
@@ -480,7 +509,8 @@ export default class EPshopSheet extends HandlebarsApplicationMixin(ActorSheetV2
    */
   _getCartState(isOwnerView) {
     const purchaseNetworks = isOwnerView ? [] : this._getPurchaseNetworkOptions();
-    const buyAvailable = !isOwnerView && purchaseNetworks.length > 0 && game.settings.get("eclipsephase", "superBrew");
+    const buyAvailable = !isOwnerView && purchaseNetworks.length > 0
+      && isPurchaseModeAvailable("buy", this._purchaseContext(isOwnerView));
     const hasSelection = !isOwnerView && this._selectedForPurchase.size > 0;
     const hasStaged = this._toSell.size > 0;
     // Same "closed" definition as the footer's accepted-rep display - avoids showing a Sell
@@ -1088,7 +1118,7 @@ export default class EPshopSheet extends HandlebarsApplicationMixin(ActorSheetV2
    * @returns {Promise<void>}
    */
   async _useFlatBuy() {
-    if (!game.settings.get("eclipsephase", "superBrew")) return;
+    if (!isPurchaseModeAvailable("buy", this._purchaseContext())) return;
 
     const character = game.user.character;
     if (!character?.isOwner) {
@@ -1170,7 +1200,7 @@ export default class EPshopSheet extends HandlebarsApplicationMixin(ActorSheetV2
    * @returns {Promise<void>}
    */
   async _useTrade() {
-    if (!game.settings.get("eclipsephase", "superBrew")) return;
+    if (!isPurchaseModeAvailable("buy", this._purchaseContext())) return;
 
     const character = game.user.character;
     if (!character?.isOwner) {
@@ -1345,7 +1375,7 @@ export default class EPshopSheet extends HandlebarsApplicationMixin(ActorSheetV2
       context.selected = Object.fromEntries([...this._selectedForPurchase].map(id => [id, true]));
       context.purchaseNetworks = this._getPurchaseNetworkOptions();
       context.hasSelection = this._selectedForPurchase.size > 0;
-      context.homebrewBuyEnabled = game.settings.get("eclipsephase", "superBrew");
+      context.homebrewBuyEnabled = isPurchaseModeAvailable("buy", this._purchaseContext());
       // hasX gates visibility (numeric check) - the breakdown string itself is always truthy even
       // when it reads "0", so the template can't gate on the string directly.
       context.hasSellBonus = this._getSellBonus() > 0;
@@ -1406,7 +1436,7 @@ export default class EPshopSheet extends HandlebarsApplicationMixin(ActorSheetV2
       // Trivial is never overridden (RAW: always free), so it's excluded entirely. flatBuyCost/
       // sellRepGain columns only exist while superBrew is on, same gating as "Buy" itself -
       // sellBonus is never gated.
-      context.superBrewEnabled = game.settings.get("eclipsephase", "superBrew");
+      context.superBrewEnabled = isPurchaseModeAvailable("buy", this._purchaseContext());
       // Morph Points -> cost-tier thresholds, only meaningful while superBrew is on (see the
       // superBrewEnabled gate around this section's markup in shop-sheet.html).
       context.morphPointOverrides = actor.system.morphPointOverrides ?? {};
@@ -1443,6 +1473,7 @@ export default class EPshopSheet extends HandlebarsApplicationMixin(ActorSheetV2
       }));
     }
 
+    Hooks.callAll("eclipsephase-shop.prepareContext", this, context);
     return context;
   }
 

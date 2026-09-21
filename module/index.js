@@ -1,6 +1,7 @@
 import EPshopSheet from "./shop-sheet.js";
 import ShopModel from "./shop-model.js";
 import { applyLoyaltyTransaction, completeShopPurchase, postShopChatMessage, shopRepIconHtml } from "./shop-logic.js";
+import { registerPurchaseMode, purchaseModeList, applicablePurchaseModes, getPurchaseMode } from "./purchase-modes.js";
 
 const MODULE_ID = "eclipsephase-shop";
 const SHOP_TYPE = `${MODULE_ID}.shop`;
@@ -28,6 +29,8 @@ Hooks.once("init", () => {
     default: ""
   });
 
+  registerCorePurchaseModes();
+
   CONFIG.Actor.dataModels[SHOP_TYPE] = ShopModel;
   foundry.applications.apps.DocumentSheetConfig.registerSheet(Actor, MODULE_ID, EPshopSheet, {
     types: [SHOP_TYPE],
@@ -35,6 +38,41 @@ Hooks.once("init", () => {
   });
   foundry.applications.handlebars.loadTemplates(SHOP_TEMPLATES);
 });
+
+/**
+ * The payment routes the shop ships with. "Cash in Favor" and "Sell" are always available; "Buy"
+ * is a house rule, so it registers the same way an outside module's route would and is the only
+ * place the superBrew setting is read.
+ * @returns {void}
+ */
+function registerCorePurchaseModes() {
+  registerPurchaseMode({
+    id: "favor",
+    label: "ep2e.shop.purchase.favorConfirm",
+    order: 10,
+    footerButton: "shop-purchase-favor",
+    available: context => !context.isOwnerView && context.purchaseNetworks.length > 0,
+    execute: context => context.sheet._useGefallen()
+  });
+
+  registerPurchaseMode({
+    id: "sell",
+    label: "ep2e.shop.toSell.confirm",
+    order: 20,
+    footerButton: "shop-cart-action",
+    available: context => context.salesOpen,
+    execute: context => context.sheet._confirmSellDialog()
+  });
+
+  registerPurchaseMode({
+    id: "buy",
+    label: "ep2e.shop.purchase.confirm",
+    order: 30,
+    footerButton: "shop-cart-action",
+    available: () => game.settings.get("eclipsephase", "superBrew") === true,
+    execute: context => context.sheet._useFlatBuy()
+  });
+}
 
 // Shops carry no health bars, so they get their own token defaults rather than the system's.
 Hooks.on("preCreateActor", (actor, data) => {
@@ -187,6 +225,19 @@ Hooks.once("ready", async () => {
   });
 
   await runShopMigration();
+});
+
+// What another module may build on. Mirrors the system's own approach: register rather than patch.
+Hooks.once("init", () => {
+  const module = game.modules.get(MODULE_ID);
+  module.api = {
+    registerPurchaseMode,
+    purchaseModes: purchaseModeList,
+    applicablePurchaseModes,
+    getPurchaseMode,
+    ShopModel,
+    shopType: SHOP_TYPE
+  };
 });
 
 Hooks.once("eclipsephase.ready", ({ api }) => {

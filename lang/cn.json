@@ -1,8 +1,12 @@
 {
   "SETTINGS": {
-    "enableShopSystem": {
-      "name": "启用商店系统",
-      "hint": "启用商店角色类型。禁用后，现有商店将被隐藏，且无法创建新商店。"
+    "enableFlatBuy": {
+      "name": "允许用声望购买",
+      "hint": "家规，非核心规则：物品可按固定声望价格直接购买，无需检定。关闭后将隐藏「购买」与「交易」按钮及「买入价」列。"
+    },
+    "enableMorphTrade": {
+      "name": "允许交易义体",
+      "hint": "家规，非核心规则：义体可以上架、购买并作为人情索取。关闭后将在所有入口阻止义体，并隐藏义体点数覆盖设置。"
     }
   },
   "ep2e": {
@@ -141,7 +145,7 @@
         "sellLimitExceeded": "这里单次交易的量太多了。请减少你的选择后重试。",
         "rareLoyaltyRequired": "该物品为稀有——你需要在本商店至少达到橙色忠诚度才能获得它。",
         "favorBatchTooLarge": "这里一次人情请求所涉及的物品太多了——请减少你的选择。",
-        "morphsBlocked": "无法用信誉购买义体。义体改为通过任务的义体点数获得。",
+        "morphsBlocked": "本商店不交易义体——义体交易已在商店模块设置中关闭。",
         "systemTooOld": "本模块需要 Eclipse Phase 系统 {required} 或更高版本。"
       },
       "migration": {

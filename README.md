@@ -21,11 +21,38 @@ Shops used to be a system actor type. On the first world load with this module a
 existing shop actor is moved onto the module's own type, keeping its id so tokens on scenes keep
 working. The migration runs once per world and reports what it did.
 
+## Disabling or removing the module
+
+The shop is an actor type this module owns, so switching the module off leaves those actors with a
+type nobody provides. Foundry then reports one console error per shop on world load and hides them.
+**Nothing is lost:** the data stays in the world untouched, and switching the module back on brings
+every shop back exactly as it was.
+
+To remove the module for good, delete the shop actors **while the module is still active**, then
+disable it.
+
+One more thing worth knowing: chat cards created before version 2.5 of the system carry no shop
+data. Rescuing such an old card's favor roll with a pool spend still spends the pool but no longer
+completes the purchase. Only cards from 2.5 onwards carry what that needs.
+
+## Settings
+
+Two house rules ship switched **on**, each switchable on its own under Game Settings:
+
+| Setting | What it controls |
+|---|---|
+| **Allow buying with Rep** | The Buy and Trade routes, and the "Buys For" column of the rate tables |
+| **Allow trading morphs** | Stocking, buying and asking for morphs, and the Morph Point override section |
+
+Neither is RAW. Selling is unaffected by both and is always available.
+
+Both start switched on in every world, including worlds upgrading from earlier versions, where
+these routes used to follow the system's Special Brew setting.
+
 ## Extending the shop
 
 Another module can add a payment route without patching the sheet. The shop's own "Cash in Favor"
-and "Sell" are registered the same way, and "Buy" (the flat-Rep house rule) is registered too,
-which is the only place the system's `superBrew` setting is read.
+and "Sell" are registered the same way, and "Buy" (the flat-Rep house rule) is registered too.
 
 ```js
 Hooks.once("ready", () => {

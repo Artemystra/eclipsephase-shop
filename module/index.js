@@ -2,6 +2,8 @@ import EPshopSheet from "./shop-sheet.js";
 import ShopModel from "./shop-model.js";
 import { applyLoyaltyTransaction, completeShopPurchase, postShopChatMessage, shopRepIconHtml } from "./shop-logic.js";
 import { registerPurchaseMode, purchaseModeList, applicablePurchaseModes, getPurchaseMode } from "./purchase-modes.js";
+import { runShopMigration } from "./migration.js";
+import "../tests/quench/index.js";
 
 const MODULE_ID = "eclipsephase-shop";
 const SHOP_TYPE = `${MODULE_ID}.shop`;
@@ -29,6 +31,18 @@ Hooks.once("init", () => {
     default: ""
   });
 
+  for (const key of ["enableFlatBuy", "enableMorphTrade"]) {
+    game.settings.register(MODULE_ID, key, {
+      config: true,
+      scope: "world",
+      name: `SETTINGS.${key}.name`,
+      hint: `SETTINGS.${key}.hint`,
+      type: Boolean,
+      default: true,
+      onChange: rerenderShopSheets
+    });
+  }
+
   registerCorePurchaseModes();
 
   CONFIG.Actor.dataModels[SHOP_TYPE] = ShopModel;
@@ -40,9 +54,19 @@ Hooks.once("init", () => {
 });
 
 /**
+ * Re-renders every open shop sheet, so toggling a house rule takes effect without a reload.
+ * @returns {void}
+ */
+function rerenderShopSheets() {
+  for (const app of foundry.applications.instances.values()) {
+    if (app instanceof EPshopSheet) app.render();
+  }
+}
+
+/**
  * The payment routes the shop ships with. "Cash in Favor" and "Sell" are always available; "Buy"
- * is a house rule, so it registers the same way an outside module's route would and is the only
- * place the superBrew setting is read.
+ * is a house rule of this module, switchable in its own settings, and registers the same way an
+ * outside module's route would.
  * @returns {void}
  */
 function registerCorePurchaseModes() {
@@ -69,7 +93,7 @@ function registerCorePurchaseModes() {
     label: "ep2e.shop.purchase.confirm",
     order: 30,
     footerButton: "shop-cart-action",
-    available: () => game.settings.get("eclipsephase", "superBrew") === true,
+    available: () => game.settings.get(MODULE_ID, "enableFlatBuy") === true,
     execute: context => context.sheet._useFlatBuy()
   });
 }
@@ -86,7 +110,10 @@ Hooks.on("preCreateActor", (actor, data) => {
 });
 
 // Sell Bonus and burned Rep are the shop's own modifiers, and the burned amount has to reach the
-// chat card so a pool rescue can still charge it.
+// chat card so a pool rescue can still charge it. The payload is built once and stored twice:
+// itemData feeds the chat card, flags.shop feeds the roll context the card keeps, which is the only
+// route a later pool rescue can read. The system merges ctx.flags over its own block, so the shop
+// owns that key outright.
 Hooks.on("eclipsephase.preRoll", context => {
   if (context.rolledFrom !== "shopPurchase") return;
   const { dataset, options } = context;
@@ -103,20 +130,26 @@ Hooks.on("eclipsephase.preRoll", context => {
     context.modifiers.push({ text: "ep2e.shop.purchase.burnBonusModifier", value: burnAmount * BURN_BONUS_PER_POINT });
   }
 
-  context.itemData = {
-    shopUuid: dataset.shopUuid,
-    buyerActorId: dataset.buyerActorId,
-    itemIds: dataset.itemIds,
-    network: dataset.name,
-    requiredTier: dataset.requiredTier,
-    bodyBindings: dataset.bodyBindings,
-    burnAmount
+  const payload = {
+    shopUuid: dataset.shopUuid ?? "",
+    buyerActorId: dataset.buyerActorId ?? "",
+    itemIds: dataset.itemIds ?? "",
+    network: dataset.name ?? "",
+    requiredTier: dataset.requiredTier ?? "",
+    bodyBindings: dataset.bodyBindings ?? "",
+    burnAmount,
+    redeemLevels: Math.max(0, Number(dataset.redeemLevels) || 0)
   };
+  context.itemData = payload;
+  context.flags.shop = payload;
 });
 
 // A pool spend that turns a failed purchase into a success completes the purchase after the fact.
+// A card from before the shop stored its own block carries nothing to complete the purchase with,
+// so the second guard lets those pass by untouched.
 Hooks.on("eclipsephase.poolResult", async ({ context, actor }) => {
   if (context.rolledFrom !== "shopPurchase" || context.alternatives.resultClass !== "success") return;
+  if (!context.shop?.shopUuid) return;
 
   const bodyBindings = {};
   (context.shop.bodyBindings || "").split(",").filter(Boolean).forEach(pair => {
@@ -130,7 +163,8 @@ Hooks.on("eclipsephase.poolResult", async ({ context, actor }) => {
     itemIds: context.shop.itemIds,
     network: context.shop.network,
     favorTier: context.shop.requiredTier,
-    bodyBindings
+    bodyBindings,
+    redeemLevels: context.shop.redeemLevels ?? 0
   });
   if (!boughtItems.length) return;
 
@@ -160,51 +194,6 @@ Hooks.on("eclipsephase.prepareItemData", (item, itemModel) => {
   else if (mp >= moderateMin) itemModel.cost = "moderate";
   else itemModel.cost = "minor";
 });
-
-/**
- * Moves one legacy shop actor onto this module's own type, keeping its id so scene tokens still
- * resolve. Changing a type demands that system data be replaced wholesale, and all three options
- * matter: _replace marks the replacement, diff:false stops the server from diffing the payload
- * apart (which loses that marker on the way back), and recursive:false keeps the root key from
- * being merged. A failed type change can either throw or pass silently, so the result is judged
- * by the type the document actually carries afterwards.
- * @param {Actor} actor - The legacy shop actor
- * @returns {Promise<Boolean>} Whether the actor now carries this module's type
- */
-async function migrateShopActor(actor) {
-  const stored = actor.toObject().system ?? {};
-  try {
-    await actor.update({ type: SHOP_TYPE, system: _replace(stored) }, { diff: false, recursive: false });
-  } catch (error) {
-    console.error(`Eclipse Phase Shops | "${actor.name}" could not be migrated:`, error);
-    return false;
-  }
-  return actor.type === SHOP_TYPE;
-}
-
-/**
- * Converts every legacy shop actor in the world, once per world.
- * @returns {Promise<void>} Resolves once the migration has run or was skipped
- */
-async function runShopMigration() {
-  if (!game.user.isGM) return;
-  if (game.settings.get(MODULE_ID, "migrationVersion") === game.modules.get(MODULE_ID).version) return;
-
-  const legacy = game.actors.filter(actor => actor.type === LEGACY_SHOP_TYPE);
-  if (legacy.length) {
-    const failed = [];
-    for (const actor of legacy) {
-      if (!(await migrateShopActor(actor))) failed.push(actor.name);
-    }
-    if (failed.length) {
-      ui.notifications.error(game.i18n.format("ep2e.shop.migration.failed", { shops: failed.join(", ") }));
-      return;
-    }
-    ui.notifications.info(game.i18n.format("ep2e.shop.migration.done", { count: legacy.length }));
-  }
-
-  await game.settings.set(MODULE_ID, "migrationVersion", game.modules.get(MODULE_ID).version);
-}
 
 Hooks.once("ready", async () => {
   const system = game.eclipsephase;

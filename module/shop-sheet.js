@@ -1,5 +1,6 @@
 import { completeShopPurchase, hasFreeFavorSlot, LOYALTY_PER_TIER, getLoyaltyLevel, postShopChatMessage, shopRepIconHtml } from "./shop-logic.js";
 import { applicablePurchaseModes, isPurchaseModeAvailable } from "./purchase-modes.js";
+import { morphsBlocked } from "./shop-logic.js";
 
 /**
  * The system's public API. Read lazily, since this feature is imported before init builds it.
@@ -10,7 +11,8 @@ function api() {
 }
 
 const FAVOR_TIER_RANK = { trivial: 0, minor: 1, moderate: 2, major: 3 };
-// "Buy" (Laph's Special Brew house rule, superBrew setting): flat Rep cost, no roll - Trivial
+// "Buy" (a house rule of this module, switchable via its enableFlatBuy setting): flat Rep cost,
+// no roll - Trivial
 // has no RAW cost equivalent, treated as free.
 const FLAT_BUY_COST = { trivial: 0, minor: 15, moderate: 30, major: 60 };
 // "Cash in Favor": per-item Sell Bonus contribution when staged in "To Sell", summed and capped
@@ -336,7 +338,7 @@ export default class EPshopSheet extends HandlebarsApplicationMixin(ActorSheetV2
   // mission's Morph Points instead) - blocks every entry point (drop/stage, Cash in Favor, Buy),
   // not just the roll/charge itself.
   _isMorphBlocked(items) {
-    return !isPurchaseModeAvailable("buy", this._purchaseContext()) && items.some(item => item.type === "morph");
+    return morphsBlocked(items);
   }
 
   // Rare gear needs at least Orange (level 2) Loyalty standing, gated behind loyaltyEnabled.
@@ -502,7 +504,7 @@ export default class EPshopSheet extends HandlebarsApplicationMixin(ActorSheetV2
    * Which state the merged Buy/Trade/Sell footer button is in, and whether it and Cash-in-Favor
    * should show at all. Owner never has a purchase selection (Buying is Observer-only), so only
    * ever resolves to "sell". Mirrors the same gates each action already checks on its own
-   * (accepted purchase networks, superBrew, acceptsSales) - affordability/closed-shop specifics
+   * (accepted purchase networks, the Buy route, acceptsSales) - affordability/closed-shop specifics
    * still get their own warnings at click time in _useTrade()/_useFlatBuy()/_confirmSellDialog().
    * @param {boolean} isOwnerView
    * @returns {{visible: boolean, showFavor: boolean, favorDisabled: boolean, showAction: boolean, action: "buy"|"trade"|"sell", actionDisabled: boolean}}
@@ -1062,6 +1064,7 @@ export default class EPshopSheet extends HandlebarsApplicationMixin(ActorSheetV2
       maxBurn: BONUS_CAP / 2,
       bodyBindings: Object.entries(bindings).map(([id, boundTo]) => `${id}:${boundTo}`).join(","),
       favorDifficultyModifier,
+      redeemLevels: easeApplied,
       ...(loyaltyActive ? { favorDifficultyLocked: true, favorDifficultyLockedHint: "ep2e.shop.purchase.favorDifficultyLockedHint" } : {})
     };
 
@@ -1113,7 +1116,7 @@ export default class EPshopSheet extends HandlebarsApplicationMixin(ActorSheetV2
   }
 
   /**
-   * "Buy" (Laph's Special Brew house rule, only active while the superBrew setting is on): a
+   * "Buy" (a house rule of this module, only active while enableFlatBuy is on): a
    * flat Rep cost per item's own favor tier, no roll, no Favor-Limit interaction.
    * @returns {Promise<void>}
    */
@@ -1375,7 +1378,7 @@ export default class EPshopSheet extends HandlebarsApplicationMixin(ActorSheetV2
       context.selected = Object.fromEntries([...this._selectedForPurchase].map(id => [id, true]));
       context.purchaseNetworks = this._getPurchaseNetworkOptions();
       context.hasSelection = this._selectedForPurchase.size > 0;
-      context.homebrewBuyEnabled = isPurchaseModeAvailable("buy", this._purchaseContext());
+      context.flatBuyEnabled = isPurchaseModeAvailable("buy", this._purchaseContext());
       // hasX gates visibility (numeric check) - the breakdown string itself is always truthy even
       // when it reads "0", so the template can't gate on the string directly.
       context.hasSellBonus = this._getSellBonus() > 0;
@@ -1413,7 +1416,6 @@ export default class EPshopSheet extends HandlebarsApplicationMixin(ActorSheetV2
         .map(a => ({ characterId: a.id, name: a.name }))
         .sort((a, b) => a.name.localeCompare(b.name));
 
-      // Loyalty tracking - runs independent of superBrew, gated only by its own master toggle.
       context.loyaltyEnabled = actor.system.loyaltyEnabled;
       const loyaltyOverrides = actor.system.loyaltyPerTier ?? {};
       context.loyaltyTierGrid = ["minor", "moderate", "major", "rare"].map(tier => ({
@@ -1434,11 +1436,9 @@ export default class EPshopSheet extends HandlebarsApplicationMixin(ActorSheetV2
 
       // Cost-override matrix - pre-resolved grids, no nested lookups needed in the template.
       // Trivial is never overridden (RAW: always free), so it's excluded entirely. flatBuyCost/
-      // sellRepGain columns only exist while superBrew is on, same gating as "Buy" itself -
       // sellBonus is never gated.
-      context.superBrewEnabled = isPurchaseModeAvailable("buy", this._purchaseContext());
-      // Morph Points -> cost-tier thresholds, only meaningful while superBrew is on (see the
-      // superBrewEnabled gate around this section's markup in shop-sheet.html).
+      context.flatBuyEnabled = isPurchaseModeAvailable("buy", this._purchaseContext());
+      context.morphTradeEnabled = game.settings.get("eclipsephase-shop", "enableMorphTrade") === true;
       context.morphPointOverrides = actor.system.morphPointOverrides ?? {};
       const general = actor.system.generalRateOverrides ?? {};
       // What the matrix's placeholders should show: the shop's General Override if set, else the

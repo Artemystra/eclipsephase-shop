@@ -91,7 +91,7 @@
                 </div>
                 </div>
 
-                {{!-- Loyalty tracking - independent of superBrew, gated only by its own master toggle.
+                {{!-- Loyalty tracking - independent of the house rules, gated only by its own master toggle.
                      Buy and Cash-in-Favor grant loyalty (equally), plain Sell never does. --}}
                 <div class="contentBox">
                 <div class="flexrow subheader">
@@ -198,7 +198,7 @@
 
                 {{!-- Cost Overrides - context.generalOverrideGrid/rateOverrideGrid are pre-resolved in
                      EPshopSheet.js. Blank = no override, falls back to the shown placeholder.
-                     flatBuyCost/sellRepGain columns only exist while superBrew is on; sellBonus is
+                     the flatBuyCost column only exists while the Buy route is on; sellBonus and sellRepGain are
                      never gated. --}}
                 <div class="contentBox">
                 <div class="flexrow subheader">
@@ -244,28 +244,26 @@
                     <thead>
                         <tr>
                             <th class="shop-th-corner"></th>
-                            {{#if superBrewEnabled}}<th>{{localize "ep2e.shop.settings.rateTableBuysFor"}}</th>{{/if}}
+                            {{#if flatBuyEnabled}}<th>{{localize "ep2e.shop.settings.rateTableBuysFor"}}</th>{{/if}}
                             <th>{{localize "ep2e.shop.settings.rateTableRollBonus"}}</th>
-                            {{#if superBrewEnabled}}<th>{{localize "ep2e.shop.settings.rateTableSellsFor"}}</th>{{/if}}
+                            <th>{{localize "ep2e.shop.settings.rateTableSellsFor"}}</th>
                         </tr>
                     </thead>
                     <tbody>
                         {{#each generalOverrideGrid as |tierEntry|}}
                             <tr>
                                 <th class="shop-th-side">{{localize tierEntry.tierLabel}}</th>
-                                {{#if @root.superBrewEnabled}}
+                                {{#if @root.flatBuyEnabled}}
                                     <td><input type="number" data-dtype="Number" name="system.generalRateOverrides.{{tierEntry.tier}}.flatBuyCost" value="{{tierEntry.flatBuyCost}}" placeholder="{{tierEntry.flatBuyCostPlaceholder}}"/></td>
                                 {{/if}}
                                 <td><input type="number" data-dtype="Number" name="system.generalRateOverrides.{{tierEntry.tier}}.sellBonus" value="{{tierEntry.sellBonus}}" placeholder="{{tierEntry.sellBonusPlaceholder}}"/></td>
-                                {{#if @root.superBrewEnabled}}
-                                    <td><input type="number" data-dtype="Number" name="system.generalRateOverrides.{{tierEntry.tier}}.sellRepGain" value="{{tierEntry.sellRepGain}}" placeholder="{{tierEntry.sellRepGainPlaceholder}}"/></td>
-                                {{/if}}
+                                <td><input type="number" data-dtype="Number" name="system.generalRateOverrides.{{tierEntry.tier}}.sellRepGain" value="{{tierEntry.sellRepGain}}" placeholder="{{tierEntry.sellRepGainPlaceholder}}"/></td>
                             </tr>
                         {{/each}}
                     </tbody>
                 </table>
 
-                {{#if superBrewEnabled}}
+                {{#if morphTradeEnabled}}
                     <p class="headline6">{{localize "ep2e.shop.settings.morphPointOverridesHeadline"}}<a class="moreInfoDialog shop-info-icon" data-title="ep2e.shop.settings.morphPointOverridesHeadline" data-description="ep2e.shop.settings.morphPointOverridesDescription" data-rolledfrom="info"><i class="fa-regular fa-circle-info awesomeIcon"></i></a></p>
                     <table class="shop-rate-override-table">
                         <thead>
@@ -292,27 +290,25 @@
                     <thead>
                         <tr>
                             <th class="shop-th-corner"></th>
-                            {{#if superBrewEnabled}}<th>{{localize "ep2e.shop.settings.rateTableBuysFor"}}</th>{{/if}}
+                            {{#if flatBuyEnabled}}<th>{{localize "ep2e.shop.settings.rateTableBuysFor"}}</th>{{/if}}
                             <th>{{localize "ep2e.shop.settings.rateTableRollBonus"}}</th>
-                            {{#if superBrewEnabled}}<th>{{localize "ep2e.shop.settings.rateTableSellsFor"}}</th>{{/if}}
+                            <th>{{localize "ep2e.shop.settings.rateTableSellsFor"}}</th>
                         </tr>
                     </thead>
                     <tbody>
                         {{#each rateOverrideGrid as |networkEntry|}}
                             <tr class="shop-network-row">
                                 <th class="shop-th-corner"></th>
-                                <th colspan="{{#if @root.superBrewEnabled}}3{{else}}1{{/if}}" class="shop-th-rep-center" title="{{localize networkEntry.label}}"><img src="{{lookup @root.config.repIcons networkEntry.network}}" class="shop-rep-icon"/>Rep</th>
+                                <th colspan="{{#if @root.flatBuyEnabled}}3{{else}}2{{/if}}" class="shop-th-rep-center" title="{{localize networkEntry.label}}"><img src="{{lookup @root.config.repIcons networkEntry.network}}" class="shop-rep-icon"/>Rep</th>
                             </tr>
                             {{#each networkEntry.tiers as |tierEntry|}}
                                 <tr>
                                     <th class="shop-th-side">{{localize tierEntry.tierLabel}}</th>
-                                    {{#if @root.superBrewEnabled}}
+                                    {{#if @root.flatBuyEnabled}}
                                         <td><input type="number" data-dtype="Number" name="system.rateOverrides.{{networkEntry.network}}.{{tierEntry.tier}}.flatBuyCost" value="{{tierEntry.flatBuyCost}}" placeholder="{{tierEntry.flatBuyCostPlaceholder}}"/></td>
                                     {{/if}}
                                     <td><input type="number" data-dtype="Number" name="system.rateOverrides.{{networkEntry.network}}.{{tierEntry.tier}}.sellBonus" value="{{tierEntry.sellBonus}}" placeholder="{{tierEntry.sellBonusPlaceholder}}"/></td>
-                                    {{#if @root.superBrewEnabled}}
-                                        <td><input type="number" data-dtype="Number" name="system.rateOverrides.{{networkEntry.network}}.{{tierEntry.tier}}.sellRepGain" value="{{tierEntry.sellRepGain}}" placeholder="{{tierEntry.sellRepGainPlaceholder}}"/></td>
-                                    {{/if}}
+                                    <td><input type="number" data-dtype="Number" name="system.rateOverrides.{{networkEntry.network}}.{{tierEntry.tier}}.sellRepGain" value="{{tierEntry.sellRepGain}}" placeholder="{{tierEntry.sellRepGainPlaceholder}}"/></td>
                                 </tr>
                             {{/each}}
                         {{/each}}

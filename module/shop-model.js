@@ -44,10 +44,20 @@ function schemaOver(keys, build) {
  * existed, so an existing shop keeps every setting when it starts being validated by this schema.
  */
 export default class ShopModel extends foundry.abstract.TypeDataModel {
+  /**
+   * schemaVersion exists so that cleaning a legacy shop's data against this schema can never
+   * produce the data it started from. A type change has to carry its system data as a forced
+   * replacement, and the server - which has no data model for a module sub-type - drops a
+   * replacement whose value equals what is already stored, after which the client rejects the type
+   * change for arriving without one. A key no pre-module shop can have keeps the two apart.
+   * @returns {Object} The field definitions
+   */
   static defineSchema() {
     const { SchemaField, BooleanField, NumberField, StringField } = foundry.data.fields;
 
     return {
+      schemaVersion: new NumberField({ required: true, nullable: false, integer: true, initial: 1 }),
+
       acceptedRepNetworks: schemaOver(REP_NETWORKS, () =>
         new BooleanField({ required: true, initial: true })),
       acceptsSales: new BooleanField({ required: true, initial: true }),

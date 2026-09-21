@@ -1,8 +1,12 @@
 {
   "SETTINGS": {
-    "enableShopSystem": {
-      "name": "Enable Shop System",
-      "hint": "Enables the Shop actor type. If deactivated, existing shops are hidden and new ones can't be created."
+    "enableFlatBuy": {
+      "name": "Allow buying with Rep",
+      "hint": "House rule, not RAW: items can be bought outright for a flat Rep cost, without a roll. Off hides the Buy and Trade buttons and the 'Buys For' rate column."
+    },
+    "enableMorphTrade": {
+      "name": "Allow trading morphs",
+      "hint": "House rule, not RAW: morphs can be stocked, bought and asked for as favors. Off blocks morphs at every entry point and hides the Morph Point overrides."
     }
   },
   "ep2e": {
@@ -141,7 +145,7 @@
         "sellLimitExceeded": "That's too much for one transaction here. Reduce your selection and try again.",
         "rareLoyaltyRequired": "This item is Rare - you need at least Orange Loyalty standing with this shop to acquire it.",
         "favorBatchTooLarge": "That's too many items to call in as one favor here - reduce your selection.",
-        "morphsBlocked": "Morphs can't be purchased with Rep. They're acquired via the mission's Morph Points instead.",
+        "morphsBlocked": "This shop does not trade morphs - morph trading is switched off in the Shops module settings.",
         "systemTooOld": "This module needs the Eclipse Phase system in version {required} or later."
       },
       "migration": {

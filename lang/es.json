@@ -1,8 +1,12 @@
 {
   "SETTINGS": {
-    "enableShopSystem": {
-      "name": "Activar sistema de tienda",
-      "hint": "Activa el tipo de actor Tienda. Si se desactiva, las tiendas existentes se ocultan y no se pueden crear nuevas."
+    "enableFlatBuy": {
+      "name": "Permitir comprar con Rep",
+      "hint": "Regla de la casa, no RAW: los objetos se pueden comprar directamente por un coste fijo de Rep, sin tirada. Desactivado oculta Comprar e Intercambiar y la columna 'Compra por'."
+    },
+    "enableMorphTrade": {
+      "name": "Permitir comerciar con morfos",
+      "hint": "Regla de la casa, no RAW: los morfos se pueden almacenar, comprar y pedir como favores. Desactivado bloquea los morfos en todos los puntos de entrada y oculta los ajustes de Puntos de Morfo."
     }
   },
   "ep2e": {
@@ -141,7 +145,7 @@
         "sellLimitExceeded": "Eso es demasiado para una sola transacción aquí. Reduce tu selección e inténtalo de nuevo.",
         "rareLoyaltyRequired": "Este objeto es Raro - necesitas al menos nivel de Lealtad Naranja con esta tienda para adquirirlo.",
         "favorBatchTooLarge": "Son demasiados objetos para pedir como un solo favor aquí - reduce tu selección.",
-        "morphsBlocked": "Los Morphs no se pueden comprar con Reputación. En su lugar, se adquieren mediante los Puntos de Morph de la misión.",
+        "morphsBlocked": "Esta tienda no comercia con morfos: el comercio de morfos está desactivado en los ajustes del módulo de tiendas.",
         "systemTooOld": "Este módulo necesita el sistema Eclipse Phase en la versión {required} o posterior."
       },
       "migration": {

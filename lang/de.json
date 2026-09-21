@@ -1,8 +1,12 @@
 {
   "SETTINGS": {
-    "enableShopSystem": {
-      "name": "Shop-System aktivieren",
-      "hint": "Aktiviert den Shop-Actor-Typ. Wenn deaktiviert, werden bestehende Shops versteckt und es können keine neuen erstellt werden."
+    "enableFlatBuy": {
+      "name": "Kauf mit Rep erlauben",
+      "hint": "Hausregel, nicht RAW: Gegenstände lassen sich ohne Wurf zu einem festen Rep-Preis kaufen. Aus blendet Kaufen und Tauschen sowie die Spalte 'Kauft für' aus."
+    },
+    "enableMorphTrade": {
+      "name": "Morph-Handel erlauben",
+      "hint": "Hausregel, nicht RAW: Morphs können geführt, gekauft und per Gefallen erbeten werden. Aus blockiert Morphs an jeder Stelle und blendet die Morph-Punkt-Overrides aus."
     }
   },
   "ep2e": {
@@ -141,7 +145,7 @@
         "sellLimitExceeded": "Das ist zu viel für eine einzelne Transaktion hier. Verkleinere deine Auswahl und versuch es erneut.",
         "rareLoyaltyRequired": "Dieses Item ist Rare - du brauchst mindestens Orange-Loyalität bei diesem Shop, um es zu erwerben.",
         "favorBatchTooLarge": "Das sind zu viele Items für einen einzigen Gefallen hier - verkleinere deine Auswahl.",
-        "morphsBlocked": "Morphs können nicht mit Rep erstanden werden. Sie werden stattdessen über die Morph-Points der Mission erworben.",
+        "morphsBlocked": "Dieser Shop handelt nicht mit Morphs - der Morph-Handel ist in den Einstellungen des Shop-Moduls abgeschaltet.",
         "systemTooOld": "Dieses Modul benötigt das Eclipse-Phase-System in Version {required} oder neuer."
       },
       "migration": {

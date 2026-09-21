@@ -251,3 +251,15 @@ export async function postShopChatMessage(character, copyKey, copyData, boxConte
   });
   await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: character }), content });
 }
+
+/**
+ * Whether this shop refuses to trade morphs. Morphs are not acquired via Rep under RAW, so the
+ * route is a house rule of this module and can be switched off in its settings; switched off, it
+ * blocks every entry point (drop, stage, Cash in Favor, Buy), not just the charge.
+ * @param {Object[]} items - The items being staged, bought or asked for
+ * @returns {Boolean} True while at least one is a morph and morph trading is off
+ */
+export function morphsBlocked(items = []) {
+  if (game.settings.get("eclipsephase-shop", "enableMorphTrade") === true) return false;
+  return items.some(item => item.type === "morph");
+}

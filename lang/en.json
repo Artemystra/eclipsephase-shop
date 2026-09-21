@@ -1,0 +1,158 @@
+{
+  "SETTINGS": {
+    "enableShopSystem": {
+      "name": "Enable Shop System",
+      "hint": "Enables the Shop actor type. If deactivated, existing shops are hidden and new ones can't be created."
+    }
+  },
+  "ep2e": {
+    "shop": {
+      "tabs": {
+        "shop": "Shop",
+        "settings": "Settings"
+      },
+      "filter": {
+        "placeholder": "Filter by item type..."
+      },
+      "dialog": {
+        "selectNetwork": {
+          "label": "Rep Network",
+          "placeholder": "- Select -",
+          "headline": "Choose Network"
+        },
+        "loyaltyDiscount": {
+          "label": "Discount",
+          "none": "No discount",
+          "option": "{levels} Tier ({percent}%)"
+        }
+      },
+      "placeholders": {
+        "shopName": "Shop Name",
+        "noItems": "This shop has no items yet."
+      },
+      "settings": {
+        "generalHeadline": "General",
+        "repHeadline": "Accepted Rep Networks",
+        "repDescription": "Which Rep networks this shop deals in - only these appear as payment options for buying, selling, or cashing in a Favor here.",
+        "acceptsSales": "Shop accepts sales",
+        "valuationHeadline": "Item Valuation",
+        "valuationDescription": "Maps each item's own cost tier to this shop's effective cost tier, Free through Rare. Rare gates behind Loyalty (if enabled) independent of price; Rep-Test difficulty and price are set separately below, in Difficulty Mapping.",
+        "costTierFree": "Free",
+        "difficultyMappingHeadline": "Difficulty Mapping",
+        "difficultyMappingDescription": "Remaps this shop's own effective cost tiers (set above in Item Valuation) onto the Favor tier used for Rep-Test difficulty and price - lets you make every Minor-tier item here roll or cost like Moderate, without touching which items are Minor in the first place. A Free item stays free unless its Trivial row is remapped here.",
+        "loyaltyHeadline": "Loyalty",
+        "loyaltyEnabled": "Track loyalty for this shop",
+        "loyaltyPerTierHeadline": "Loyalty per Tier",
+        "loyaltyPerTierDescription": "Buying an item or cashing in a Favor grants the buyer loyalty with this shop, scaled by the item's own cost type (not the shop's Rep-tier valuation). Selling never grants loyalty.",
+        "loyaltyRecordsHeadline": "Current Character Loyalty",
+        "loyaltyRecordsDescription": "A live list of every character's current standing at this shop - not a setting, just their tracked Loyalty value. Edit a value directly to correct it manually.",
+        "loyaltyRecordsEmpty": "This shop has no loyal customers yet.",
+        "loyaltyRecordDelete": "Delete this character's loyalty record",
+        "loyaltyRecordDeleteConfirm": "This will permanently delete this character's loyalty record with this shop.",
+        "loyaltyRecordAdd": "Add a character",
+        "loyaltyRecordAddTitle": "Add Character",
+        "loyaltyRecordAddHeadline": "Select a character to add to this shop's loyalty list.",
+        "loyaltyRecordAddWindowTitle": "Tamper with the Loyalty Board",
+        "loyaltyBarMaxHeadline": "Maximum Loyalty for this Shop",
+        "loyaltyBarMaxDescription": "The highest Loyalty value this shop tracks. The footer's color bar and marker are scaled against this number.",
+        "loyaltyBarHeadline": "Loyalty Bar Segments in %",
+        "loyaltyBarDescription": "Splits the bar into four percentage bands (Red/Orange/Yellow/Green). Together they can never exceed 100% of the Maximum Loyalty above.",
+        "loyaltyBarRed": "Red (T1)",
+        "loyaltyBarOrange": "Orange (T2)",
+        "loyaltyBarYellow": "Yellow (T3)",
+        "loyaltyBarGreen": "Green (T4)",
+        "sellLimitTimeframeHeadline": "Sell Limits per Timeframe",
+        "sellLimitsDescription": "Caps how much a character can sell to this shop in one transaction. Reaching a limit locks the character out of further sales here until a long rest, or until the Owner clears it below.",
+        "sellLimitMaxItems": "Max Items",
+        "sellLimitMaxRep": "Max Rep",
+        "sellLockoutsHeadline": "Locked-Out Characters",
+        "sellLockoutsEmpty": "No characters have hit the sell limits yet.",
+        "sellLockoutsDescription": "Characters currently locked out of selling here after reaching a Sell Limit above - clear a lockout to let them sell again before their next long rest.",
+        "sellLockoutClear": "Clear this character's lockout",
+        "loyaltyBuyDiscountHeadline": "Buy Discount",
+        "loyaltyBuyDiscountDescription": "Percentage discount on Buy, redeemable per Loyalty Tier - spending it drops standing back down by that many Tiers.",
+        "loyaltyBuyDiscountLevel2": "Tier 2 (%)",
+        "loyaltyBuyDiscountLevel3": "Tier 3 (%)",
+        "loyaltyBuyDiscountLevel4": "Tier 4 (%)",
+        "rateOverridesHeadline": "Cost Overrides",
+        "generalOverridesHeadline": "General Overrides",
+        "generalOverridesDescription": "Sets the shop's baseline prices. Lets you quickly make this shop more expensive or cheaper across the board.",
+        "morphPointOverridesHeadline": "Morph Point Overrides",
+        "morphPointOverridesDescription": "This option only exists in Homebrew, since Morphs normally aren't purchasable and are instead accounted for via a different point system. Each value is the Morph Points threshold where that tier begins - lower point costs fall through to a lower tier automatically. If two thresholds are set to the same value, the higher tier wins.",
+        "specificOverridesHeadline": "Rep-Specific Overrides",
+        "specificOverridesDescription": "For finer-grained shop tuning - for example, if certain Rep is less welcome in some places than others. Any slot left blank falls back to the base value, or the General Override if one is set.",
+        "rateTableBuysFor": "Buys For",
+        "rateTableRollBonus": "Roll Bonus",
+        "rateTableSellsFor": "Sells For"
+      },
+      "inventory": {
+        "headline": "Inventory"
+      },
+      "acceptedRep": {
+        "label": "Shop Accepts:",
+        "loyaltyLabel": "Shop Loyalty:",
+        "noCharacter": "You have no active character. Choose an owned character and come back here."
+      },
+      "purchase": {
+        "confirm": "Buy",
+        "trade": "Trade",
+        "favorConfirm": "Cash in Favor",
+        "required": "Required favor:",
+        "flatBuyCost": "Buy cost:",
+        "netCost": "Net cost:",
+        "otherwiseLabel": "Other:",
+        "sellBonus": "Sell Roll Bonus:",
+        "sellForRep": "Sell for Rep:",
+        "repBenefitsHeadline": "Rep Benefits",
+        "burnRep": "Burn Rep:",
+        "burnRepHint": "Bonus: Burned Rep x 2<br>(Max. 15 Rep)",
+        "sellBonusModifier": "Sell Bonus",
+        "burnBonusModifier": "Burned Rep",
+        "favorDifficultyLockedHint": "Automatically set by this shop's Loyalty standing and how many items you're calling in at once.",
+        "successMessage": "{character} bought {items} from {shop} with {network} Rep.",
+        "favorMessage": "{character} cashed in a favor to get {items}.",
+        "favorBurnMessage": "{character} cashed in a favor to get {items} and burned {network} Rep in the process.",
+        "tradeInMessage": "{character} bought {items}, trading in {soldCount} item(s) worth {network} Rep toward this purchase.",
+        "tradeReceived": "Received",
+        "tradeSpend": "Spent"
+      },
+      "toSell": {
+        "headline": "To Sell",
+        "empty": "Drag items here from your own sheet to sell them to this shop.",
+        "confirm": "Sell",
+        "remove": "Remove from To Sell",
+        "confirmMessage": "You are about to sell the staged item(s) to this shop.",
+        "ownerWarning": "You own this shop. Are you sure you want to sell something to yourself?",
+        "repGainMessage": "{character} gained {network} Rep from selling."
+      },
+      "warnings": {
+        "systemDisabled": "The shop system is currently disabled - you can activate it via Eclipse Phase's system settings.",
+        "sellFailed": "The sale could not be completed.",
+        "purchaseFailed": "The purchase could not be completed.",
+        "purchaseItemsGone": "Some of the purchased items are no longer available.",
+        "favorLimitExhausted": "No favor of this tier is available right now - the weekly or story-arc limit is already used up.",
+        "notEnoughRepToBurn": "Not enough Rep available to burn that much - reduced to what's available.",
+        "notEnoughRepToBuy": "Not enough Rep available to buy this.",
+        "shopClosed": "This shop is currently closed.",
+        "salesClosed": "This shop is currently closed for sales.",
+        "differentActingCharacter": "You're already selling items for another character - finish or remove those first.",
+        "noEligibleCharacters": "No eligible characters left to add - every player-linked character already has a loyalty record here.",
+        "sellLockedOut": "You've sold too much to this shop recently. Rest to be welcomed back, or ask the Owner to lift the restriction.",
+        "sellLimitExceeded": "That's too much for one transaction here. Reduce your selection and try again.",
+        "rareLoyaltyRequired": "This item is Rare - you need at least Orange Loyalty standing with this shop to acquire it.",
+        "favorBatchTooLarge": "That's too many items to call in as one favor here - reduce your selection.",
+        "morphsBlocked": "Morphs can't be purchased with Rep. They're acquired via the mission's Morph Points instead.",
+        "systemTooOld": "This module needs the Eclipse Phase system in version {required} or later."
+      },
+      "migration": {
+        "done": "{count} shop(s) moved to the Shops module.",
+        "failed": "These shops could not be moved to the Shops module: {shops}. Their data is unchanged - check the console for details."
+      }
+    }
+  },
+  "TYPES": {
+    "Actor": {
+      "eclipsephase-shop.shop": "Shop"
+    }
+  }
+}

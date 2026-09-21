@@ -1,0 +1,12 @@
+{
+  "name": "eclipsephase-shop",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Shops for the Eclipse Phase system for Foundry VTT",
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "jest": "^27.5.1"
+  }
+}

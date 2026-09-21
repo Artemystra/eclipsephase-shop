@@ -1,0 +1,47 @@
+{
+  "id": "eclipsephase-shop",
+  "title": "Eclipse Phase — Shops",
+  "description": "Shops for the Eclipse Phase system: stock, Rep-based purchases, favors, selling and loyalty.",
+  "version": "1.0.0",
+  "authors": [
+    {
+      "name": "Artemystra"
+    }
+  ],
+  "compatibility": {
+    "minimum": "14",
+    "verified": "14"
+  },
+  "relationships": {
+    "systems": [
+      {
+        "id": "eclipsephase",
+        "type": "system",
+        "compatibility": {
+          "minimum": "2.5"
+        }
+      }
+    ]
+  },
+  "documentTypes": {
+    "Actor": {
+      "shop": {}
+    }
+  },
+  "esmodules": [
+    "module/index.js"
+  ],
+  "styles": [
+    "css/shop.css"
+  ],
+  "languages": [
+    { "lang": "en", "name": "English", "path": "lang/en.json" },
+    { "lang": "de", "name": "Deutsch", "path": "lang/de.json" },
+    { "lang": "es", "name": "Español", "path": "lang/es.json" },
+    { "lang": "cn", "name": "中文", "path": "lang/cn.json" },
+    { "lang": "pt-BR", "name": "Português (Brasil)", "path": "lang/pt-BR.json" }
+  ],
+  "url": "https://github.com/Artemystra/eclipsephase-shop",
+  "manifest": "https://raw.githubusercontent.com/Artemystra/eclipsephase-shop/main/module.json",
+  "download": "https://github.com/Artemystra/eclipsephase-shop/archive/refs/heads/main.zip"
+}

@@ -81,10 +81,3 @@ Two more seams:
   templates. Fill them with the system's slot registry
   (`game.eclipsephase.api.registry.registerSlot`), remembering to preload your template, since
   slots render as synchronous Handlebars partials.
-
-## Development
-
-```
-npm install
-npm test
-```

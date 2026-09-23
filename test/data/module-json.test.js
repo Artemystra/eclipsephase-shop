@@ -36,6 +36,14 @@ describe("module.json", () => {
     expect(manifest.languages.map(entry => entry.lang).sort()).toEqual(["cn", "de", "en", "es", "pt-BR"]);
   });
 
+  test("the manifest is the rolling latest-release alias, so an installed copy always finds the newest one", () => {
+    expect(manifest.manifest).toEqual("https://github.com/Artemystra/eclipsephase-shop/releases/latest/download/module.json");
+  });
+
+  test("the download is pinned to the tag matching the declared version", () => {
+    expect(manifest.download).toEqual(`https://github.com/Artemystra/eclipsephase-shop/releases/download/v${manifest.version}/eclipsephase-shop.zip`);
+  });
+
   test("its version matches the one package.json carries", () => {
     const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, "package.json"), "utf8"));
     expect(manifest.version).toEqual(pkg.version);

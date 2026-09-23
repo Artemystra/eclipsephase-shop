@@ -7,6 +7,68 @@ Requires the Eclipse Phase system in version 2.5 or later. The module contribute
 sub-type, `eclipsephase-shop.shop`, and registers against the system's public extension API
 (`game.eclipsephase.api`) rather than patching it.
 
+## Features
+
+### Shopping With Your Social Score
+
+![Shop Window](resources/screenshots/shopWindow.webp)
+*The shop sheet as a player sees it: the shop's stock on the right, their own basket on the left*
+
+Eclipse Phase has no shopping lists and no price tags, and this module does not invent any. A shop
+holds items, every item carries a cost level rather than a number, and what a character can get out
+of it depends on how well they are regarded in the network the shop trades in.
+
+There are two ways through the door. **Cashing in a favor** is the RAW route: the character calls in
+their standing on a rep network, rolls for it, and burns rep on a success. **Buying** is the flat
+house rule for tables who would rather not roll every time, and it can be switched off entirely if
+your table wants the book's version and nothing else. Selling works the same way in reverse and is
+always open, whatever else you switch off.
+
+Which networks a shop trades in is up to the shop. The footer says so at a glance, and a character
+who has no standing in any of them is welcome to browse and nothing more.
+
+<p><img src="https://raw.githubusercontent.com/Artemystra/eclipsephase/master/resources/icons/Currency/currency-at.svg" width="26" alt="at-rep"> <img src="https://raw.githubusercontent.com/Artemystra/eclipsephase/master/resources/icons/Currency/currency-c.svg" width="26" alt="c-rep"> <img src="https://raw.githubusercontent.com/Artemystra/eclipsephase/master/resources/icons/Currency/currency-f.svg" width="26" alt="f-rep"> <img src="https://raw.githubusercontent.com/Artemystra/eclipsephase/master/resources/icons/Currency/currency-g.svg" width="26" alt="g-rep"> <img src="https://raw.githubusercontent.com/Artemystra/eclipsephase/master/resources/icons/Currency/currency-i.svg" width="26" alt="i-rep"> <img src="https://raw.githubusercontent.com/Artemystra/eclipsephase/master/resources/icons/Currency/currency-r.svg" width="26" alt="r-rep"> <img src="https://raw.githubusercontent.com/Artemystra/eclipsephase/master/resources/icons/Currency/currency-x.svg" width="26" alt="x-rep"></p>
+
+Selling is a drag: pull items over from a character sheet, they collect in the basket on the left,
+and what sits there also sweetens the favor roll if the character would rather trade than pay.
+Buying picks from the shop's own list instead. Morphs are ordinary stock too, cost levels and all,
+for the tables that let their players resleeve on the open market.
+
+### Every Shop is Different
+
+![Cost Overrides](resources/screenshots/costOverrides.webp)
+*The Settings tab: what a cost level means, what it costs, and what it pays back*
+
+A back-alley fixer on Mars and a Titanian cooperative should not feel like the same vending machine,
+so almost nothing about a shop's economy is fixed. Every shop carries its own settings tab, and the
+defaults are only a starting point.
+
+**Item Valuation** and **Difficulty Mapping** re-point the cost levels themselves: a shop that treats
+everything Major as merely Moderate is a shop with good connections, and one that pushes Minor goods
+up to Major is a shop that knows it is the only game in the habitat. **General Overrides** then set
+what each level actually costs to buy, what it pays when sold, and what bonus the favor roll gets.
+
+If that is still not specific enough, **Rep-Specific Overrides** do the same thing per network. The
+same shop can be generous to the anarchists it grew up with and merciless to anyone walking in on
+c-rep, and the numbers say so rather than the GM having to remember it.
+
+Nothing here needs to be touched to play. Leave the tables alone and every shop behaves identically,
+which is exactly what a table that just wants to buy a gun would want.
+
+### Let's Chat About Commerce
+
+<img src="resources/screenshots/favorPurchaseCard.webp" align="left" width="300" alt="Purchase Chat Card">
+
+Trading happens in the middle of a session, often while everyone is talking about something else, and
+a transaction that quietly succeeds is a transaction somebody will ask about twenty minutes later.
+
+So every purchase, sale and favor writes its own card: who did it, what they got, which network paid
+for it and at what cost level. A favor roll that came out badly can still be rescued with a pool
+spend straight from the card, and the purchase then completes from there rather than needing to be
+started again.
+
+<br clear="left">
+
 ## Installation
 
 Install by manifest URL:
@@ -14,12 +76,6 @@ Install by manifest URL:
 ```
 https://raw.githubusercontent.com/Artemystra/eclipsephase-shop/main/module.json
 ```
-
-## Migrating from system versions before 2.5
-
-Shops used to be a system actor type. On the first world load with this module active, every
-existing shop actor is moved onto the module's own type, keeping its id so tokens on scenes keep
-working. The migration runs once per world and reports what it did.
 
 ## Disabling or removing the module
 
@@ -31,10 +87,6 @@ every shop back exactly as it was.
 To remove the module for good, delete the shop actors **while the module is still active**, then
 disable it.
 
-One more thing worth knowing: chat cards created before version 2.5 of the system carry no shop
-data. Rescuing such an old card's favor roll with a pool spend still spends the pool but no longer
-completes the purchase. Only cards from 2.5 onwards carry what that needs.
-
 ## Settings
 
 Two house rules ship switched **on**, each switchable on its own under Game Settings:
@@ -45,9 +97,6 @@ Two house rules ship switched **on**, each switchable on its own under Game Sett
 | **Allow trading morphs** | Stocking, buying and asking for morphs, and the Morph Point override section |
 
 Neither is RAW. Selling is unaffected by both and is always available.
-
-Both start switched on in every world, including worlds upgrading from earlier versions, where
-these routes used to follow the system's Special Brew setting.
 
 ## Extending the shop
 

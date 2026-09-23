@@ -2,7 +2,7 @@
   "id": "eclipsephase-shop",
   "title": "Eclipse Phase — Shops",
   "description": "Shops for the Eclipse Phase system: stock, Rep-based purchases, favors, selling and loyalty.",
-  "version": "1.1.0",
+  "version": "1.0.0",
   "authors": [
     {
       "name": "Artemystra"

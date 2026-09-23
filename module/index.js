@@ -3,7 +3,7 @@ import ShopModel from "./shop-model.js";
 import { applyLoyaltyTransaction, completeShopPurchase, postShopChatMessage, shopRepIconHtml } from "./shop-logic.js";
 import { registerPurchaseMode, purchaseModeList, applicablePurchaseModes, getPurchaseMode } from "./purchase-modes.js";
 import { runShopMigration } from "./migration.js";
-import "../tests/quench/index.js";
+import "./tests/quench/index.js";
 
 const MODULE_ID = "eclipsephase-shop";
 const SHOP_TYPE = `${MODULE_ID}.shop`;

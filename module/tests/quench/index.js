@@ -1,4 +1,4 @@
-import { completeShopPurchase, getLoyaltyLevel, hasFreeFavorSlot, consumeFavorSlot } from "../../module/shop-logic.js";
+import { completeShopPurchase, getLoyaltyLevel, hasFreeFavorSlot, consumeFavorSlot } from "../../shop-logic.js";
 import { withTempActor, waitUntil, withoutDiceAnimation, seedDice, restoreDice, uniformForFace, lastMessage } from "./helpers.js";
 
 const SHOP_TYPE = "eclipsephase-shop.shop";

@@ -90,7 +90,9 @@
         "rateTableSellsFor": "Vende por"
       },
       "inventory": {
-        "headline": "Inventario"
+        "headline": "Inventario",
+        "inStock": "En existencias",
+        "ammoForm": "Munición"
       },
       "acceptedRep": {
         "label": "Shop Accepts:",
@@ -146,11 +148,14 @@
         "rareLoyaltyRequired": "Este objeto es Raro - necesitas al menos nivel de Lealtad Naranja con esta tienda para adquirirlo.",
         "favorBatchTooLarge": "Son demasiados objetos para pedir como un solo favor aquí - reduce tu selección.",
         "morphsBlocked": "Esta tienda no comercia con morfos: el comercio de morfos está desactivado en los ajustes del módulo de tiendas.",
-        "systemTooOld": "Este módulo necesita el sistema Eclipse Phase en la versión {required} o posterior."
+        "systemTooOld": "Este módulo necesita el sistema Eclipse Phase en la versión {required} o posterior.",
+        "drugFormUnset": "Almacenada antes de que un paquete tuviera una sola forma. Abre la droga y deja solo la forma que vende esta tienda; hasta entonces no se puede comprar."
       },
       "migration": {
         "done": "{count} tienda(s) trasladadas al módulo de tiendas.",
-        "failed": "Estas tiendas no se pudieron trasladar al módulo de tiendas: {shops}. Sus datos están intactos - consulta la consola para más detalles."
+        "failed": "Estas tiendas no se pudieron trasladar al módulo de tiendas: {shops}. Sus datos están intactos - consulta la consola para más detalles.",
+        "drugFormHeadline": "Algunas tiendas aún tienen drogas con varias formas",
+        "drugFormDetail": "Ahora un paquete tiene una sola forma. Abre cada droga y deja solo la forma que vende la tienda; hasta entonces no se puede comprar."
       }
     }
   },

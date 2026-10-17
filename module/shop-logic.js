@@ -1,3 +1,5 @@
+import { availableUnits, countIds } from "./stock.js";
+
 const SOCKET_NAME = "system.eclipsephase";
 
 /**
@@ -142,20 +144,20 @@ export async function completeShopPurchase({ shopUuid, buyerActorId, itemIds, ne
   if (!shop || !character) return [];
 
   const ids = Array.isArray(itemIds) ? itemIds : String(itemIds ?? "").split(",").filter(Boolean);
-  const items = ids.map(id => shop.items.get(id)).filter(Boolean);
-  if (!items.length) {
-    if (ids.length) ui.notifications.warn(game.i18n.localize("ep2e.shop.warnings.purchaseItemsGone"));
-    return [];
-  }
-  if (items.length < ids.length) {
-    ui.notifications.warn(game.i18n.localize("ep2e.shop.warnings.purchaseItemsGone"));
-  }
+  const wanted = [...countIds(ids)]
+    .map(([id, count]) => ({ item: shop.items.get(id), count }))
+    .filter(entry => entry.item)
+    .map(entry => ({ ...entry, quantity: Math.min(entry.count, availableUnits(entry.item)) }))
+    .filter(entry => entry.quantity > 0);
+  const short = wanted.reduce((sum, entry) => sum + entry.quantity, 0) < ids.length;
+  if (short && ids.length) ui.notifications.warn(game.i18n.localize("ep2e.shop.warnings.purchaseItemsGone"));
+  if (!wanted.length) return [];
 
   const boughtItems = [];
-  for (const item of items) {
+  for (const { item, quantity } of wanted) {
     let created;
     if (character.isOwner && shop.isOwner) {
-      created = await api().actors.transferItemBetweenActors({ sourceActor: shop, targetActor: character, item, quantity: 1 });
+      created = await api().actors.transferItemBetweenActors({ sourceActor: shop, targetActor: character, item, quantity });
       if (item.type === "morph" && created) {
         const { boundToFor } = api().actors.getBodyBindingInfo(character);
         const boundTo = boundToFor(created);
@@ -167,7 +169,7 @@ export async function completeShopPurchase({ shopUuid, buyerActorId, itemIds, ne
         sourceActorUuid: shop.uuid,
         targetActorUuid: character.uuid,
         itemId: item.id,
-        quantity: 1
+        quantity
       });
       if (!transferResult?.ok) {
         ui.notifications.warn(transferResult?.error ?? game.i18n.localize("ep2e.shop.warnings.purchaseFailed"));
@@ -186,7 +188,7 @@ export async function completeShopPurchase({ shopUuid, buyerActorId, itemIds, ne
       }
     }
 
-    boughtItems.push(item);
+    for (let unit = 0; unit < quantity; unit++) boughtItems.push(item);
   }
 
   if (boughtItems.length) {

@@ -555,3 +555,47 @@ form.eclipsephase.shop {
 .eclipsephase .shop-th-rep-center {
   text-align: center;
 }
+
+/* How many units of a stock row the buyer wants; sits where the system's purchase checkbox sat. */
+.eclipsephase input.shop-purchase-count {
+  flex: 0 0 38px;
+  width: 38px;
+  min-width: 0;
+  height: 20px;
+  margin: 0 6px 0 0;
+  padding: 0 2px;
+  text-align: center;
+}
+
+/* Stands in for the spinner on a row that cannot be sold as it is. */
+.eclipsephase .shop-stock-locked {
+  flex: 0 0 38px;
+  margin: 0 6px 0 0;
+  text-align: center;
+  color: var(--negative);
+}
+
+.eclipsephase .shop-stock-count {
+  flex: 0 0 30px;
+  background: none;
+  margin-left: 10px;
+}
+
+/* The owner's field for how many units a stock row holds. */
+.eclipsephase input.shop-stock-quantity {
+  flex: 0 0 38px;
+  width: 38px;
+  min-width: 0;
+  height: 20px;
+  margin-left: 10px;
+  padding: 0 2px;
+  text-align: center;
+}
+
+.eclipsephase .shop-stock-form {
+  flex: 0.4;
+  background: none;
+  font-size: 12px;
+  margin-left: 10px;
+  margin-right: 10px;
+}

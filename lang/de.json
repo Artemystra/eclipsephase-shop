@@ -90,7 +90,9 @@
         "rateTableSellsFor": "Verkauft für"
       },
       "inventory": {
-        "headline": "Inventar"
+        "headline": "Inventar",
+        "inStock": "Auf Lager",
+        "ammoForm": "Munition"
       },
       "acceptedRep": {
         "label": "Shop Accepts:",
@@ -146,11 +148,14 @@
         "rareLoyaltyRequired": "Dieses Item ist Rare - du brauchst mindestens Orange-Loyalität bei diesem Shop, um es zu erwerben.",
         "favorBatchTooLarge": "Das sind zu viele Items für einen einzigen Gefallen hier - verkleinere deine Auswahl.",
         "morphsBlocked": "Dieser Shop handelt nicht mit Morphs - der Morph-Handel ist in den Einstellungen des Shop-Moduls abgeschaltet.",
-        "systemTooOld": "Dieses Modul benötigt das Eclipse-Phase-System in Version {required} oder neuer."
+        "systemTooOld": "Dieses Modul benötigt das Eclipse-Phase-System in Version {required} oder neuer.",
+        "drugFormUnset": "Eingelagert, bevor eine Packung genau eine Form hatte. Öffne die Droge und lass nur die Form übrig, die dieser Laden verkauft - bis dahin ist sie nicht kaufbar."
       },
       "migration": {
         "done": "{count} Shop(s) in das Shop-Modul überführt.",
-        "failed": "Diese Shops konnten nicht in das Shop-Modul überführt werden: {shops}. Ihre Daten sind unverändert - Details stehen in der Konsole."
+        "failed": "Diese Shops konnten nicht in das Shop-Modul überführt werden: {shops}. Ihre Daten sind unverändert - Details stehen in der Konsole.",
+        "drugFormHeadline": "Einige Läden führen noch Drogen mit mehreren Formen",
+        "drugFormDetail": "Eine Packung hat jetzt genau eine Form. Öffne jede Droge und lass nur die Form übrig, die der Laden verkauft - bis dahin ist sie nicht kaufbar."
       }
     }
   },

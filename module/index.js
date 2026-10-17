@@ -3,12 +3,13 @@ import ShopModel from "./shop-model.js";
 import { applyLoyaltyTransaction, completeShopPurchase, postShopChatMessage, shopRepIconHtml } from "./shop-logic.js";
 import { registerPurchaseMode, purchaseModeList, applicablePurchaseModes, getPurchaseMode } from "./purchase-modes.js";
 import { runShopMigration } from "./migration.js";
+import { unitSummary } from "./stock.js";
 import "./tests/quench/index.js";
 
 const MODULE_ID = "eclipsephase-shop";
 const SHOP_TYPE = `${MODULE_ID}.shop`;
 const LEGACY_SHOP_TYPE = "shop";
-const REQUIRED_SYSTEM_VERSION = "2.5";
+const REQUIRED_SYSTEM_VERSION = "2.7";
 const SOCKET_NAME = "system.eclipsephase";
 const BURN_BONUS_PER_POINT = 2;
 // Same defaults the system derives a morph's tier from, applied here only when a shop overrides them.
@@ -20,6 +21,7 @@ const SHOP_TEMPLATES = [
   "modules/eclipsephase-shop/templates/roll-dialog-section.html",
   "modules/eclipsephase-shop/templates/shop-footer.html",
   "modules/eclipsephase-shop/templates/shop-inventory-panel.html",
+  "modules/eclipsephase-shop/templates/shop-stock-list.html",
   "modules/eclipsephase-shop/templates/shop-to-sell-list.html"
 ];
 
@@ -174,7 +176,7 @@ Hooks.on("eclipsephase.poolResult", async ({ context, actor }) => {
     ? `${tierLabel} + ${shopRepIconHtml(context.shop.network)} ${burnAmount}`
     : `${shopRepIconHtml(context.shop.network)} ${tierLabel}`;
   await postShopChatMessage(actor, burnAmount > 0 ? "ep2e.shop.purchase.favorBurnMessage" : "ep2e.shop.purchase.favorMessage",
-    { character: actor.name, items: boughtItems.map(item => item.name).join(", "), network: context.shop.network.replace("-rep", "") },
+    { character: actor.name, items: unitSummary(boughtItems), network: context.shop.network.replace("-rep", "") },
     boxContent);
 });
 

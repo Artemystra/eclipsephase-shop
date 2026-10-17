@@ -90,7 +90,9 @@
         "rateTableSellsFor": "出售价"
       },
       "inventory": {
-        "headline": "库存"
+        "headline": "库存",
+        "inStock": "库存",
+        "ammoForm": "弹药"
       },
       "acceptedRep": {
         "label": "Shop Accepts:",
@@ -146,11 +148,14 @@
         "rareLoyaltyRequired": "该物品为稀有——你需要在本商店至少达到橙色忠诚度才能获得它。",
         "favorBatchTooLarge": "这里一次人情请求所涉及的物品太多了——请减少你的选择。",
         "morphsBlocked": "本商店不交易义体——义体交易已在商店模块设置中关闭。",
-        "systemTooOld": "本模块需要 Eclipse Phase 系统 {required} 或更高版本。"
+        "systemTooOld": "本模块需要 Eclipse Phase 系统 {required} 或更高版本。",
+        "drugFormUnset": "此药物在每包只含一种形式之前入库。请打开药物，只保留本店出售的形式——在此之前无法购买。"
       },
       "migration": {
         "done": "已将 {count} 个商店迁移至商店模块。",
-        "failed": "以下商店无法迁移至商店模块：{shops}。其数据保持不变 - 详情请查看控制台。"
+        "failed": "以下商店无法迁移至商店模块：{shops}。其数据保持不变 - 详情请查看控制台。",
+        "drugFormHeadline": "部分商店仍有含多种形式的药物",
+        "drugFormDetail": "现在每包只含一种形式。请打开每种药物，只保留商店出售的形式——在此之前无法购买。"
       }
     }
   },

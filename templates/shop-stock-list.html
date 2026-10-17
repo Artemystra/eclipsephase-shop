@@ -1,0 +1,49 @@
+{{!-- The shop's stock rows. Built on the system's item-row-list.hbs, with a quantity spinner for
+  buyers, a drug's form, the stock count of a stack (a field the owner can change), and a warning
+  in place of the spinner for a row that cannot be sold as it is. --}}
+{{#each item as |item id|}}
+    <div class="item flexrow offHand flex-group-center wantToKnowMore item-row-list-entry" data-item-id="{{item._id}}" data-item-name="{{item.name}}">
+        <label class="tooltipText" style="min-width: 190px; left: -5px">{{item.name}}</label>
+        {{#if (lookup ../locked item._id)}}
+        <i class="fas fa-triangle-exclamation shop-stock-locked" data-tooltip="{{localize (lookup ../locked item._id)}}"></i>
+        {{else if ../countable}}
+        {{!-- id, not just class - lets core's focus-restore find it back after a re-render --}}
+        <input type="number" id="purchase-count-{{item._id}}" class="shop-purchase-count" data-item-id="{{item._id}}" min="0" max="{{lookup ../countMax item._id}}" step="1" value="{{#if (lookup ../selected item._id)}}{{lookup ../selected item._id}}{{else}}0{{/if}}"/>
+        {{/if}}
+        <div class="item-image flex-group-left input-small"><img src="{{item.img}}" alt="{{item.name}}" width="24" height="24"/></div>
+        <label class="truncate alignLeft" style="flex: 3.5;"><strong>{{item.name}}</strong></label>
+        {{#if item.shopFormLabel}}
+        <label class="flex-group-center alignCenter shop-stock-form"><i>{{localize item.shopFormLabel}}</i></label>
+        {{/if}}
+        {{#if item.system.slotName}}
+        <label class="flex-group-center alignCenter" style="background: none; font-size: 12px; flex: 0.4; margin-left: 10px;"><i>{{localize item.system.slotName}}</i></label>
+        {{/if}}
+        {{#if item.shopComplexityLabel}}
+        <label class="flex-group-center alignCenter" style="background: none; font-size: 12px; width: 70px;">{{localize item.shopComplexityLabel}}</label>
+        {{/if}}
+        {{#if item.system.quantity}}
+        {{#if ../readOnly}}
+        <label class="flex-group-center alignCenter shop-stock-count" data-tooltip="{{localize 'ep2e.shop.inventory.inStock'}}">{{item.system.quantity}}</label>
+        {{else}}
+        <input type="number" id="stock-quantity-{{item._id}}" class="shop-stock-quantity" data-item-id="{{item._id}}" min="1" step="1" value="{{item.system.quantity}}" data-tooltip="{{localize 'ep2e.shop.inventory.inStock'}}"/>
+        {{/if}}
+        {{/if}}
+        <div class="flexrow item-controls flex-group-right" style="max-width: 50px; min-width: 50px;">
+            {{#unless ../readOnly}}
+            <a class="item-control item-delete resource-label editWithLabel input-xs alignRight" title="Delete Item"><i class="far fa-times-circle awesomeIcon"></i></a>
+            {{/unless}}
+            <a class="item-control item-edit resource-label editWithLabel  input-xs alignRight"{{#if ../readOnly}} data-view-only="true"{{/if}}><i class="far fa-{{#if ../readOnly}}eye{{else}}edit{{/if}} awesomeIcon"></i></a>
+        </div>
+        <div class="flex-group-right slideShow input-xs">
+            <a class="showFlex"><i class="fas fa-plus icon-xsmall awesomeIcon"></i></a>
+            <a class="noShow"><i class="fas fa-minus icon-xsmall awesomeIcon"></i></a>
+        </div>
+        {{#if item.system.description}}
+        <div class="item showMore descriptionContainer">
+            <div class="itemDescription" style="min-width: 100%;">
+                {{{item.system.description}}}
+            </div>
+        </div>
+        {{/if}}
+    </div>
+{{/each}}

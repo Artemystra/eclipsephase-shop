@@ -1,8 +1,10 @@
 import ShopModel from "./shop-model.js";
+import { lockedStock } from "./stock.js";
 
 const MODULE_ID = "eclipsephase-shop";
 const SHOP_TYPE = `${MODULE_ID}.shop`;
 const LEGACY_SHOP_TYPE = "shop";
+const GENERAL_CHAT_MESSAGE = "systems/eclipsephase/templates/chat/general-chat-message.html";
 
 /**
  * Moves one legacy shop actor onto this module's own type, keeping its id so scene tokens still
@@ -34,7 +36,29 @@ export async function migrateShopActor(actor) {
 }
 
 /**
- * Converts every legacy shop actor in the world, once per world.
+ * Tells the GMs which shops still stock a drug offering several forms. A pack holds one form since
+ * system 2.7, and such a drug cannot be bought until the GM settles its form on the stock item.
+ * @returns {Promise<ChatMessage|null>} The notice, or null when no shop is affected
+ */
+export async function noticeDrugsWithoutForm() {
+  const lines = game.actors
+    .filter(actor => actor.type === SHOP_TYPE)
+    .map(shop => ({ shop, names: Object.keys(lockedStock(shop)).map(id => shop.items.get(id)?.name).filter(Boolean) }))
+    .filter(entry => entry.names.length)
+    .map(entry => `<b>${entry.shop.name}</b>: ${entry.names.join(", ")}`);
+  if (!lines.length) return null;
+
+  const content = await foundry.applications.handlebars.renderTemplate(GENERAL_CHAT_MESSAGE, {
+    type: "general",
+    headline: game.i18n.localize("ep2e.shop.migration.drugFormHeadline"),
+    boxDetail: [game.i18n.localize("ep2e.shop.migration.drugFormDetail"), ...lines].join("<br>")
+  });
+  return ChatMessage.create({ content, whisper: ChatMessage.getWhisperRecipients("GM").map(user => user.id) });
+}
+
+/**
+ * Converts every legacy shop actor in the world, and names the drugs left without a form, once per
+ * module version.
  * @returns {Promise<void>} Resolves once the migration has run or was skipped
  */
 export async function runShopMigration() {
@@ -53,6 +77,7 @@ export async function runShopMigration() {
     }
     ui.notifications.info(game.i18n.format("ep2e.shop.migration.done", { count: legacy.length }));
   }
+  await noticeDrugsWithoutForm();
 
   await game.settings.set(MODULE_ID, "migrationVersion", game.modules.get(MODULE_ID).version);
 }

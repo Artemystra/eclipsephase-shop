@@ -1,6 +1,7 @@
 import { completeShopPurchase, hasFreeFavorSlot, LOYALTY_PER_TIER, getLoyaltyLevel, postShopChatMessage, shopRepIconHtml } from "./shop-logic.js";
 import { applicablePurchaseModes, isPurchaseModeAvailable } from "./purchase-modes.js";
 import { morphsBlocked } from "./shop-logic.js";
+import { availableUnits, drugFormLabel, lockedStock, selectionUnits, setSelectedCount, setStockQuantity, stockItem, stocksAsStack, unitSummary } from "./stock.js";
 
 /**
  * The system's public API. Read lazily, since this feature is imported before init builds it.
@@ -141,6 +142,7 @@ export default class EPshopSheet extends HandlebarsApplicationMixin(ActorSheetV2
     for (const item of this._getFilteredItems()) {
       // Scratch property for the template, same pattern as _getToSellEntries()'s shopStagingKey.
       item.shopComplexityLabel = this._getComplexityLabel(item);
+      item.shopFormLabel = drugFormLabel(item);
       const label = game.i18n.localize(`TYPES.Item.${item.type}`);
       if (!groups.has(label)) groups.set(label, []);
       groups.get(label).push(item);
@@ -358,6 +360,13 @@ export default class EPshopSheet extends HandlebarsApplicationMixin(ActorSheetV2
     return getLoyaltyLevel(this.actor, value);
   }
 
+  /**
+   * A drop from another actor stages the item for sale; a drop from a compendium or the sidebar
+   * stocks the shop. A drug is settled to one form first, and a stack joins its row.
+   * @param {DragEvent} event - The drop
+   * @param {Item} item - The dropped item
+   * @returns {Promise<Item|null>} The stock row created or grown, or null
+   */
   async _onDropItem(event, item) {
     const targetActor = this.actor;
     const sourceActor = item.parent instanceof Actor ? item.parent : null;
@@ -393,10 +402,10 @@ export default class EPshopSheet extends HandlebarsApplicationMixin(ActorSheetV2
       return null;
     }
 
-    // Compendium/sidebar drops (stocking the shop, no source actor involved) still create
-    // directly, and still require edit rights.
-    if (this.isEditable) return super._onDropItem(event, item);
-    return null;
+    if (!this.isEditable) return null;
+    if (!stocksAsStack(item)) return super._onDropItem(event, item);
+    const data = item.inCompendium ? game.items.fromCompendium(item, { clearFolder: true }) : item.toObject();
+    return stockItem(this.actor, data);
   }
 
   _getAcceptedNetworks() {
@@ -541,8 +550,8 @@ export default class EPshopSheet extends HandlebarsApplicationMixin(ActorSheetV2
     };
   }
 
-  // Checked item ids, client-side only.
-  _selectedForPurchase = new Set();
+  // Units wanted per stock item id, client-side only.
+  _selectedForPurchase = new Map();
 
   // Accepted networks with `character`'s Rep values, sorted highest first.
   _networkOptionsFor(character) {
@@ -993,7 +1002,7 @@ export default class EPshopSheet extends HandlebarsApplicationMixin(ActorSheetV2
       return ui.notifications.warn(game.i18n.localize("ep2e.shop.acceptedRep.noCharacter"));
     }
 
-    const items = [...this._selectedForPurchase].map(id => this.actor.items.get(id)).filter(Boolean);
+    const items = selectionUnits(this.actor, this._selectedForPurchase);
     if (!items.length) return;
 
     if (this._isMorphBlocked(items)) {
@@ -1110,7 +1119,7 @@ export default class EPshopSheet extends HandlebarsApplicationMixin(ActorSheetV2
         ? `${tierLabel} + ${shopRepIconHtml(network)} ${actualBurn}`
         : `${shopRepIconHtml(network)} ${tierLabel}`;
       await postShopChatMessage(character, actualBurn > 0 ? "ep2e.shop.purchase.favorBurnMessage" : "ep2e.shop.purchase.favorMessage",
-        { character: character.name, items: boughtItems.map(item => item.name).join(", "), network: network.replace("-rep", "") },
+        { character: character.name, items: unitSummary(boughtItems), network: network.replace("-rep", "") },
         boxContent);
     }
   }
@@ -1128,7 +1137,7 @@ export default class EPshopSheet extends HandlebarsApplicationMixin(ActorSheetV2
       return ui.notifications.warn(game.i18n.localize("ep2e.shop.acceptedRep.noCharacter"));
     }
 
-    const items = [...this._selectedForPurchase].map(id => this.actor.items.get(id)).filter(Boolean);
+    const items = selectionUnits(this.actor, this._selectedForPurchase);
     if (!items.length) return;
 
     if (this._isRareBlocked(items, character)) {
@@ -1185,7 +1194,7 @@ export default class EPshopSheet extends HandlebarsApplicationMixin(ActorSheetV2
       const spent = this._applyDiscount(this._getFlatBuyCost(boughtItems, network), discountPercent);
       await idItem.update({ [`system.rep.${network}.value`]: available - spent });
       await postShopChatMessage(character, "ep2e.shop.purchase.successMessage",
-        { character: character.name, shop: this.actor.name, items: boughtItems.map(item => item.name).join(", "), network: network.replace("-rep", "") },
+        { character: character.name, shop: this.actor.name, items: unitSummary(boughtItems), network: network.replace("-rep", "") },
         spent > 0 ? `${shopRepIconHtml(network)} ${spent}` : null);
       // The earlier render() (right after clearing the selection, above) fires before this Rep
       // deduction lands - the shop's "accepted Rep" display (read off the BUYER's item, not this
@@ -1228,7 +1237,7 @@ export default class EPshopSheet extends HandlebarsApplicationMixin(ActorSheetV2
     }
     const reachesSellLimit = (maxItems > 0 && itemCount === maxItems) || (maxRep > 0 && estimatedRepGain === maxRep);
 
-    const items = [...this._selectedForPurchase].map(id => this.actor.items.get(id)).filter(Boolean);
+    const items = selectionUnits(this.actor, this._selectedForPurchase);
     if (!items.length) return;
 
     if (this._isRareBlocked(items, character)) {
@@ -1300,7 +1309,7 @@ export default class EPshopSheet extends HandlebarsApplicationMixin(ActorSheetV2
         ? `<span style="font-size: 16px;">${game.i18n.localize(actualNet < 0 ? "ep2e.shop.purchase.tradeReceived" : "ep2e.shop.purchase.tradeSpend")}</span> ${shopRepIconHtml(network)} ${Math.abs(actualNet)}`
         : null;
       await postShopChatMessage(character, "ep2e.shop.purchase.tradeInMessage",
-        { character: character.name, items: boughtItems.map(item => item.name).join(", "), soldCount, network: network.replace("-rep", "") },
+        { character: character.name, items: unitSummary(boughtItems), soldCount, network: network.replace("-rep", "") },
         boxContent);
     }
     // The earlier this.render() only covered the cleared selection - the Rep change above
@@ -1363,6 +1372,7 @@ export default class EPshopSheet extends HandlebarsApplicationMixin(ActorSheetV2
     // Item list + type filter for both tiers - reaching this method at all already means Foundry
     // granted at least LIMITED access, so no extra permission guard here.
     context.itemGroups = this._getGroupedItems();
+    context.locked = lockedStock(actor);
     context.itemTypeFilterPills = this._itemTypeFilter.map(type => game.i18n.localize(`TYPES.Item.${type}`));
     context.itemTypeFilterSuggestions = this._getFilterSuggestions();
     context.readOnly = !isOwnerView;
@@ -1374,8 +1384,9 @@ export default class EPshopSheet extends HandlebarsApplicationMixin(ActorSheetV2
     // Buying is Observer-only.
     context.canPurchase = !isOwnerView;
     if (!isOwnerView) {
-      context.selectable = true;
-      context.selected = Object.fromEntries([...this._selectedForPurchase].map(id => [id, true]));
+      context.countable = true;
+      context.selected = Object.fromEntries(this._selectedForPurchase);
+      context.countMax = Object.fromEntries(actor.items.map(item => [item.id, availableUnits(item)]));
       context.purchaseNetworks = this._getPurchaseNetworkOptions();
       context.hasSelection = this._selectedForPurchase.size > 0;
       context.flatBuyEnabled = isPurchaseModeAvailable("buy", this._purchaseContext());
@@ -1388,7 +1399,7 @@ export default class EPshopSheet extends HandlebarsApplicationMixin(ActorSheetV2
       context.hasSellForRep = this._getSellRepGain() > 0;
       context.sellForRep = this._getSellRepGainBreakdown();
       if (context.hasSelection) {
-        const selectedItems = [...this._selectedForPurchase].map(id => this.actor.items.get(id)).filter(Boolean);
+        const selectedItems = selectionUnits(this.actor, this._selectedForPurchase);
         context.requiredFavorTierLabel = game.i18n.localize(CONFIG.eclipsephase.favorTiers[this._getRequiredPricingTier(selectedItems)]);
         context.hasFlatBuyCost = this._getFlatBuyCost(selectedItems) > 0;
         context.flatBuyCost = this._getFlatBuyCostBreakdown(selectedItems);
@@ -1489,7 +1500,7 @@ export default class EPshopSheet extends HandlebarsApplicationMixin(ActorSheetV2
 
     // Core disables all form.elements when !isEditable (true for both Observer/Limited) -
     // without this, the type-filter's search input can never focus, so its dropdown never opens.
-    html.querySelectorAll(".item-purchase-select, .multiselect-input").forEach(el => el.disabled = false);
+    html.querySelectorAll(".shop-purchase-count, .multiselect-input").forEach(el => el.disabled = false);
 
     const titlebar = html.querySelector(".ep-sheet-titlebar");
     api().ui.addWindowControls(this, titlebar);
@@ -1588,12 +1599,11 @@ export default class EPshopSheet extends HandlebarsApplicationMixin(ActorSheetV2
     });
 
     // Purchase controls - Observer only.
-    html.querySelectorAll(".item-purchase-select").forEach(element => {
+    html.querySelectorAll(".shop-purchase-count").forEach(element => {
       element.addEventListener("change", ev => {
-        const itemId = ev.currentTarget.dataset.itemId;
-        if (!itemId) return;
-        if (ev.currentTarget.checked) this._selectedForPurchase.add(itemId);
-        else this._selectedForPurchase.delete(itemId);
+        const item = this.actor.items.get(ev.currentTarget.dataset.itemId);
+        if (!item) return;
+        setSelectedCount(this._selectedForPurchase, item, ev.currentTarget.value);
         this.render();
       });
     });
@@ -1615,6 +1625,13 @@ export default class EPshopSheet extends HandlebarsApplicationMixin(ActorSheetV2
         const itemId = li?.dataset.itemId;
         if (!itemId) return;
         await this.actor.deleteEmbeddedDocuments("Item", [itemId]);
+      });
+    });
+
+    html.querySelectorAll(".shop-stock-quantity").forEach(element => {
+      element.addEventListener("change", async ev => {
+        const item = this.actor.items.get(ev.currentTarget.dataset.itemId);
+        if (item) await setStockQuantity(item, ev.currentTarget.value);
       });
     });
 

@@ -1,4 +1,4 @@
-import { availableUnits, drugFormLabel, setStockQuantity, stockItem, lockedStock, setSelectedCount, selectionUnits, countIds, unitSummary, DRUG_FORM_UNSET } from "../../module/stock.js";
+import { availableUnits, drugFormLabel, setStockQuantity, stockItem, lockedStock, setSelectedCount, toggleSelected, selectionUnits, countIds, unitSummary, DRUG_FORM_UNSET } from "../../module/stock.js";
 import { completeShopPurchase } from "../../module/shop-logic.js";
 import { noticeDrugsWithoutForm } from "../../module/migration.js";
 import { makeShop, makeCustomer, resetWorld } from "../setup/factories.js";
@@ -147,6 +147,17 @@ describe("picking how many to buy", () => {
 
     expect(setSelectedCount(selection, item, 5)).toBe(3);
     expect(setSelectedCount(selection, item, "-2")).toBe(0);
+    expect(selection.has("gren0001")).toBe(false);
+  });
+
+  test("the cart toggle puts a single unit in and takes it out again", () => {
+    const shop = makeShop({ items: [grenade("gren0001", 1)] });
+    const item = shop.items.get("gren0001");
+    const selection = new Map();
+
+    expect(toggleSelected(selection, item)).toBe(1);
+    expect(selection.get("gren0001")).toBe(1);
+    expect(toggleSelected(selection, item)).toBe(0);
     expect(selection.has("gren0001")).toBe(false);
   });
 

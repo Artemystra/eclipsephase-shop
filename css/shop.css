@@ -567,6 +567,28 @@ form.eclipsephase.shop {
   text-align: center;
 }
 
+/* Stands in for the spinner where only one unit is on offer; same box as the spinner. */
+.eclipsephase .shop-purchase-toggle {
+  flex: 0 0 38px;
+  width: 38px;
+  height: 20px;
+  margin: 0 6px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accentBackground);
+}
+
+.eclipsephase .shop-purchase-toggle:hover {
+  color: var(--highlight);
+  text-shadow: none;
+}
+
+.eclipsephase .shop-purchase-toggle.active {
+  color: var(--highlight);
+  filter: drop-shadow(0 0 3px var(--highlight));
+}
+
 /* Stands in for the spinner on a row that cannot be sold as it is. */
 .eclipsephase .shop-stock-locked {
   flex: 0 0 38px;

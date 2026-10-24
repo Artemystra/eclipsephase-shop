@@ -1,11 +1,13 @@
 {{!-- The shop's stock rows. Built on the system's item-row-list.hbs, with a quantity spinner for
-  buyers, a drug's form, the stock count of a stack (a field the owner can change), and a warning
+  buyers (a cart toggle where only one unit is on offer), a drug's form, the stock count of a stack (a field the owner can change), and a warning
   in place of the spinner for a row that cannot be sold as it is. --}}
 {{#each item as |item id|}}
     <div class="item flexrow offHand flex-group-center wantToKnowMore item-row-list-entry" data-item-id="{{item._id}}" data-item-name="{{item.name}}">
         <label class="tooltipText" style="min-width: 190px; left: -5px">{{item.name}}</label>
         {{#if (lookup ../locked item._id)}}
         <i class="fas fa-triangle-exclamation shop-stock-locked" data-tooltip="{{localize (lookup ../locked item._id)}}"></i>
+        {{else if (and ../countable (eq (lookup ../countMax item._id) 1))}}
+        <a class="shop-purchase-toggle{{#if (lookup ../selected item._id)}} active{{/if}}" data-item-id="{{item._id}}"><i class="fas fa-cart-shopping icon-xsmall"></i></a>
         {{else if ../countable}}
         {{!-- id, not just class - lets core's focus-restore find it back after a re-render --}}
         <input onFocus="this.select()" type="number" id="purchase-count-{{item._id}}" class="shop-purchase-count" data-item-id="{{item._id}}" min="0" max="{{lookup ../countMax item._id}}" step="1" value="{{#if (lookup ../selected item._id)}}{{lookup ../selected item._id}}{{else}}0{{/if}}"/>

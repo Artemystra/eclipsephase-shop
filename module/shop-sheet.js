@@ -1,7 +1,7 @@
 import { completeShopPurchase, hasFreeFavorSlot, LOYALTY_PER_TIER, getLoyaltyLevel, postShopChatMessage, shopRepIconHtml } from "./shop-logic.js";
 import { applicablePurchaseModes, isPurchaseModeAvailable } from "./purchase-modes.js";
 import { morphsBlocked } from "./shop-logic.js";
-import { availableUnits, drugFormLabel, lockedStock, selectionUnits, setSelectedCount, setStockQuantity, stockItem, stocksAsStack, unitSummary } from "./stock.js";
+import { availableUnits, drugFormLabel, lockedStock, selectionUnits, setSelectedCount, setStockQuantity, stockItem, stocksAsStack, toggleSelected, unitSummary } from "./stock.js";
 
 /**
  * The system's public API. Read lazily, since this feature is imported before init builds it.
@@ -1604,6 +1604,15 @@ export default class EPshopSheet extends HandlebarsApplicationMixin(ActorSheetV2
         const item = this.actor.items.get(ev.currentTarget.dataset.itemId);
         if (!item) return;
         setSelectedCount(this._selectedForPurchase, item, ev.currentTarget.value);
+        this.render();
+      });
+    });
+
+    html.querySelectorAll(".shop-purchase-toggle").forEach(element => {
+      element.addEventListener("click", ev => {
+        const item = this.actor.items.get(ev.currentTarget.dataset.itemId);
+        if (!item) return;
+        toggleSelected(this._selectedForPurchase, item);
         this.render();
       });
     });

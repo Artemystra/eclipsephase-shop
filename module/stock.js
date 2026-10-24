@@ -98,6 +98,16 @@ export function setSelectedCount(selection, item, value) {
 }
 
 /**
+ * Puts a single-unit row into the cart or takes it out again.
+ * @param {Map<String, Number>} selection - Item id to units
+ * @param {Item} item - The stock item
+ * @returns {Number} The units now recorded
+ */
+export function toggleSelected(selection, item) {
+  return setSelectedCount(selection, item, selection.has(item.id) ? 0 : 1);
+}
+
+/**
  * The selection as one entry per unit, so every price, difficulty and loyalty rule counts each
  * unit the way it counts a separately picked item. Rows gone or locked since are left out.
  * @param {Actor} shop - The shop

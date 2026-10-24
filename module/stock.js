@@ -3,6 +3,7 @@
 // then counts on its own, exactly as if each had been picked separately.
 
 export const DRUG_FORM_UNSET = "ep2e.shop.warnings.drugFormUnset";
+export const MUNITION_UNSET = "ep2e.shop.warnings.munitionUnset";
 
 /**
  * The system's public API. Read lazily, since this feature is imported before init builds it.
@@ -32,12 +33,13 @@ export function availableUnits(item) {
 }
 
 /**
- * The form a drug row is sold in, as the character sheet names it: its one form, or ammunition for
- * a pack that loads into a weapon. Nothing for anything else, nor for a drug whose form is unset.
+ * The form a row is sold in: a drug's one form, or ammunition for a pack that loads into a weapon,
+ * and a munition's size and payload. Nothing for anything else, nor for a drug whose form is unset.
  * @param {Item} item - The stock item
- * @returns {String|null} The localization key
+ * @returns {String|null} A localization key or the label itself
  */
-export function drugFormLabel(item) {
+export function stockFormLabel(item) {
+  if (item?.type === "ammo" || item?.type === "grenade") return api().actors.munitionLabel(item.type, item.system) || null;
   if (item?.type !== "drug") return null;
   if (api().drugs.isAmmoPack(item.system)) return "ep2e.shop.inventory.ammoForm";
   return api().drugs.drugVector(item.system)?.label ?? null;
@@ -56,14 +58,15 @@ export async function setStockQuantity(item, value) {
 }
 
 /**
- * Puts a dropped item into the shop's stock. A drug is settled to one form first, as on a
- * character; a stack joins the matching row instead of adding another.
+ * Puts a dropped item into the shop's stock. A drug is settled to one form and a munition to its
+ * size and payload first, as on a character; a stack joins the matching row instead of adding another.
  * @param {Actor} shop - The shop
  * @param {Object} data - The incoming item's source data
- * @returns {Promise<Item|null>} The row that grew or was created, or null when the form was not chosen
+ * @returns {Promise<Item|null>} The row that grew or was created, or null when a choice was cancelled
  */
 export async function stockItem(shop, data) {
   if (!(await api().drugs.chooseDrugForm(data))) return null;
+  if (!(await api().actors.chooseMunition(data))) return null;
   if (stocksAsStack(data)) return api().actors.mergeOrCreateItem(shop, data);
   const [created] = await shop.createEmbeddedDocuments("Item", [data]);
   return created ?? null;
@@ -71,7 +74,7 @@ export async function stockItem(shop, data) {
 
 /**
  * The stock rows that cannot be sold as they are, with the reason: a drug stocked before a pack
- * held one form still offers several.
+ * held one form still offers several, or a munition still waits for its size or payload.
  * @param {Actor} shop - The shop
  * @returns {Object} Item id to the localization key of the reason
  */
@@ -79,6 +82,8 @@ export function lockedStock(shop) {
   const locked = {};
   for (const item of shop.items) {
     if (item.type === "drug" && api().drugs.needsVectorChoice(item.system)) locked[item.id] = DRUG_FORM_UNSET;
+    const open = api().actors.needsMunitionChoice(item.type, item.system);
+    if (open.size || open.payload) locked[item.id] = MUNITION_UNSET;
   }
   return locked;
 }

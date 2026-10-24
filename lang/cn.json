@@ -149,7 +149,8 @@
         "favorBatchTooLarge": "这里一次人情请求所涉及的物品太多了——请减少你的选择。",
         "morphsBlocked": "本商店不交易义体——义体交易已在商店模块设置中关闭。",
         "systemTooOld": "本模块需要 Eclipse Phase 系统 {required} 或更高版本。",
-        "drugFormUnset": "此药物在每包只含一种形式之前入库。请打开药物，只保留本店出售的形式——在此之前无法购买。"
+        "drugFormUnset": "此药物在每包只含一种形式之前入库。请打开药物，只保留本店出售的形式——在此之前无法购买。",
+        "munitionUnset": "尚待设定尺寸或载荷。请打开物品进行设置——在此之前无法购买。"
       },
       "migration": {
         "done": "已将 {count} 个商店迁移至商店模块。",

@@ -149,7 +149,8 @@
         "favorBatchTooLarge": "São itens demais para pedir como um único favor aqui - reduza sua seleção.",
         "morphsBlocked": "Esta loja não comercia morfos - o comércio de morfos está desligado nas configurações do módulo de lojas.",
         "systemTooOld": "Este módulo precisa do sistema Eclipse Phase na versão {required} ou posterior.",
-        "drugFormUnset": "Estocada antes de um pacote ter uma só forma. Abra a droga e deixe apenas a forma que esta loja vende - até lá ela não pode ser comprada."
+        "drugFormUnset": "Estocada antes de um pacote ter uma só forma. Abra a droga e deixe apenas a forma que esta loja vende - até lá ela não pode ser comprada.",
+        "munitionUnset": "Aguarda tamanho ou carga. Abra o item e defina-os - até lá não pode ser comprado."
       },
       "migration": {
         "done": "{count} loja(s) movida(s) para o módulo de lojas.",

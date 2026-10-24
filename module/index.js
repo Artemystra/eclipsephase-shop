@@ -9,7 +9,7 @@ import "./tests/quench/index.js";
 const MODULE_ID = "eclipsephase-shop";
 const SHOP_TYPE = `${MODULE_ID}.shop`;
 const LEGACY_SHOP_TYPE = "shop";
-const REQUIRED_SYSTEM_VERSION = "2.7";
+const REQUIRED_SYSTEM_VERSION = "2.8.5";
 const SOCKET_NAME = "system.eclipsephase";
 const BURN_BONUS_PER_POINT = 2;
 // Same defaults the system derives a morph's tier from, applied here only when a shop overrides them.

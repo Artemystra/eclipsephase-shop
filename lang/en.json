@@ -149,7 +149,8 @@
         "favorBatchTooLarge": "That's too many items to call in as one favor here - reduce your selection.",
         "morphsBlocked": "This shop does not trade morphs - morph trading is switched off in the Shops module settings.",
         "systemTooOld": "This module needs the Eclipse Phase system in version {required} or later.",
-        "drugFormUnset": "Stocked before a pack held one form. Open the drug and leave only the form this shop sells - until then it cannot be bought."
+        "drugFormUnset": "Stocked before a pack held one form. Open the drug and leave only the form this shop sells - until then it cannot be bought.",
+        "munitionUnset": "Waits for its size or payload. Open the item and set them - until then it cannot be bought."
       },
       "migration": {
         "done": "{count} shop(s) moved to the Shops module.",

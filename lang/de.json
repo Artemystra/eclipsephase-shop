@@ -149,7 +149,8 @@
         "favorBatchTooLarge": "Das sind zu viele Items für einen einzigen Gefallen hier - verkleinere deine Auswahl.",
         "morphsBlocked": "Dieser Shop handelt nicht mit Morphs - der Morph-Handel ist in den Einstellungen des Shop-Moduls abgeschaltet.",
         "systemTooOld": "Dieses Modul benötigt das Eclipse-Phase-System in Version {required} oder neuer.",
-        "drugFormUnset": "Eingelagert, bevor eine Packung genau eine Form hatte. Öffne die Droge und lass nur die Form übrig, die dieser Laden verkauft - bis dahin ist sie nicht kaufbar."
+        "drugFormUnset": "Eingelagert, bevor eine Packung genau eine Form hatte. Öffne die Droge und lass nur die Form übrig, die dieser Laden verkauft - bis dahin ist sie nicht kaufbar.",
+        "munitionUnset": "Wartet auf Größe oder Ladung. Öffne das Item und leg sie fest - bis dahin kann es nicht gekauft werden."
       },
       "migration": {
         "done": "{count} Shop(s) in das Shop-Modul überführt.",

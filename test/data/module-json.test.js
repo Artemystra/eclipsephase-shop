@@ -20,10 +20,10 @@ describe("module.json", () => {
     expect(manifest.documentTypes).toEqual({ Actor: { shop: {} } });
   });
 
-  test("requires the system version whose drug API it stocks drugs through", () => {
+  test("requires the system version whose drug and munition API it stocks through", () => {
     const system = manifest.relationships.systems.find(entry => entry.id === "eclipsephase");
     expect(system).toBeDefined();
-    expect(system.compatibility.minimum).toEqual("2.7");
+    expect(system.compatibility.minimum).toEqual("2.8.5");
   });
 
   test("names a Foundry generation it has been verified against", () => {

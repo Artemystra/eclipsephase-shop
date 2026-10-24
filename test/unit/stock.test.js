@@ -1,4 +1,4 @@
-import { availableUnits, drugFormLabel, setStockQuantity, stockItem, lockedStock, setSelectedCount, toggleSelected, selectionUnits, countIds, unitSummary, DRUG_FORM_UNSET } from "../../module/stock.js";
+import { availableUnits, stockFormLabel, setStockQuantity, stockItem, lockedStock, setSelectedCount, toggleSelected, selectionUnits, countIds, unitSummary, DRUG_FORM_UNSET, MUNITION_UNSET } from "../../module/stock.js";
 import { completeShopPurchase } from "../../module/shop-logic.js";
 import { noticeDrugsWithoutForm } from "../../module/migration.js";
 import { makeShop, makeCustomer, resetWorld } from "../setup/factories.js";
@@ -9,10 +9,11 @@ const FORMS = ["dermal", "inhalation", "injection", "oral"];
  * Stands in for the system's drug and stack API with the same rules: a drug offering several forms
  * still needs one chosen, a stack joins a row of the same type and name, a transfer moves units.
  * @param {Object} [answer] - What the form dialog answers: a form key, or null for cancelled
+ * @param {Object} [munitionAnswer] - The size the munition dialog answers, or null for cancelled
  * @returns {Object} The recorded calls
  */
-function stubSystemApi({ answer = "oral" } = {}) {
-  const calls = { chooseDrugForm: [], mergeOrCreateItem: [], transfers: [] };
+function stubSystemApi({ answer = "oral", munitionAnswer = "standard" } = {}) {
+  const calls = { chooseDrugForm: [], chooseMunition: [], mergeOrCreateItem: [], transfers: [] };
   game.eclipsephase.api.drugs = {
     needsVectorChoice: system => FORMS.filter(key => system?.[key]).length > 1,
     isAmmoPack: system => system?.isAmmo === true,
@@ -29,6 +30,15 @@ function stubSystemApi({ answer = "oral" } = {}) {
     }
   };
   game.eclipsephase.api.actors = {
+    needsMunitionChoice: (type, system) => ({ size: type === "ammo" && system?.size === "select", payload: system?.payload?.enabled === true && !system.payload.loaded?.length }),
+    munitionLabel: (type, system) => [system?.size === "standard" ? "size.standard" : "", system?.payload?.loaded?.[0]?.name ?? ""].filter(Boolean).join(" · "),
+    chooseMunition: async data => {
+      calls.chooseMunition.push(data.name);
+      if (data.type !== "ammo" || data.system?.size !== "select") return true;
+      if (!munitionAnswer) return false;
+      data.system.size = munitionAnswer;
+      return true;
+    },
     mergeOrCreateItem: async (actor, data) => {
       calls.mergeOrCreateItem.push(data.name);
       const row = actor.items.find(item => item.type === data.type && item.name === data.name);
@@ -60,6 +70,19 @@ describe("stocking the shop", () => {
     const row = await stockItem(shop, grin(undefined, ["injection", "oral"]));
 
     expect(row.system).toMatchObject({ oral: true, injection: false });
+    expect(shop.items.size).toBe(1);
+  });
+
+  test("a seeker is settled to the size chosen before it is stocked, and a cancelled choice stocks nothing", async () => {
+    const calls = stubSystemApi({ munitionAnswer: "standard" });
+    const shop = makeShop();
+
+    const row = await stockItem(shop, { name: "Splash", type: "ammo", system: { quantity: 1, size: "select" } });
+
+    expect(row.system.size).toBe("standard");
+    expect(calls.chooseMunition).toEqual(["Splash"]);
+    stubSystemApi({ munitionAnswer: null });
+    expect(await stockItem(shop, { name: "Dazzler", type: "ammo", system: { quantity: 1, size: "select" } })).toBeNull();
     expect(shop.items.size).toBe(1);
   });
 
@@ -112,6 +135,17 @@ describe("what the shop has on offer", () => {
 
     expect(lockedStock(shop)).toEqual({ grin0001: DRUG_FORM_UNSET });
   });
+
+  test("a munition still waiting for its size or payload is locked too", () => {
+    stubSystemApi();
+    const shop = makeShop({ items: [
+      { _id: "seek0001", name: "Splash", type: "ammo", system: { quantity: 1, size: "select" } },
+      { _id: "caps0001", name: "Capsule", type: "ammo", system: { quantity: 1, size: "baseline", payload: { enabled: true, loaded: [] } } },
+      { _id: "caps0002", name: "Capsule", type: "ammo", system: { quantity: 1, size: "baseline", payload: { enabled: true, loaded: [{ uuid: "x", name: "Grin" }] } } }
+    ] });
+
+    expect(lockedStock(shop)).toEqual({ seek0001: MUNITION_UNSET, caps0001: MUNITION_UNSET });
+  });
 });
 
 describe("what a stock row shows and the owner sets", () => {
@@ -121,10 +155,17 @@ describe("what a stock row shows and the owner sets", () => {
     stubSystemApi();
     const shop = makeShop({ items: [grin("grin0001", ["oral"]), { ...grin("grin0002", ["injection"]), system: { injection: true, isAmmo: true } }, grin("grin0003", ["injection", "oral"]), grenade("gren0001", 1)] });
 
-    expect(drugFormLabel(shop.items.get("grin0001"))).toBe("form.oral");
-    expect(drugFormLabel(shop.items.get("grin0002"))).toBe("ep2e.shop.inventory.ammoForm");
-    expect(drugFormLabel(shop.items.get("grin0003"))).toBeNull();
-    expect(drugFormLabel(shop.items.get("gren0001"))).toBeNull();
+    expect(stockFormLabel(shop.items.get("grin0001"))).toBe("form.oral");
+    expect(stockFormLabel(shop.items.get("grin0002"))).toBe("ep2e.shop.inventory.ammoForm");
+    expect(stockFormLabel(shop.items.get("grin0003"))).toBeNull();
+    expect(stockFormLabel(shop.items.get("gren0001"))).toBeNull();
+  });
+
+  test("a munition row names its size and payload", () => {
+    stubSystemApi();
+    const shop = makeShop({ items: [{ _id: "caps0001", name: "Splash", type: "ammo", system: { quantity: 1, size: "standard", payload: { enabled: true, loaded: [{ uuid: "x", name: "Grin" }] } } }] });
+
+    expect(stockFormLabel(shop.items.get("caps0001"))).toBe("size.standard · Grin");
   });
 
   test("the owner's stock count is stored as a whole number and never drops below one", async () => {

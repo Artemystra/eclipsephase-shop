@@ -1,7 +1,7 @@
 import { completeShopPurchase, hasFreeFavorSlot, LOYALTY_PER_TIER, getLoyaltyLevel, postShopChatMessage, shopRepIconHtml } from "./shop-logic.js";
 import { applicablePurchaseModes, isPurchaseModeAvailable } from "./purchase-modes.js";
 import { morphsBlocked } from "./shop-logic.js";
-import { availableUnits, drugFormLabel, lockedStock, selectionUnits, setSelectedCount, setStockQuantity, stockItem, stocksAsStack, toggleSelected, unitSummary } from "./stock.js";
+import { availableUnits, stockFormLabel, lockedStock, selectionUnits, setSelectedCount, setStockQuantity, stockItem, stocksAsStack, toggleSelected, unitSummary } from "./stock.js";
 
 /**
  * The system's public API. Read lazily, since this feature is imported before init builds it.
@@ -142,7 +142,7 @@ export default class EPshopSheet extends HandlebarsApplicationMixin(ActorSheetV2
     for (const item of this._getFilteredItems()) {
       // Scratch property for the template, same pattern as _getToSellEntries()'s shopStagingKey.
       item.shopComplexityLabel = this._getComplexityLabel(item);
-      item.shopFormLabel = drugFormLabel(item);
+      item.shopFormLabel = stockFormLabel(item);
       const label = game.i18n.localize(`TYPES.Item.${item.type}`);
       if (!groups.has(label)) groups.set(label, []);
       groups.get(label).push(item);

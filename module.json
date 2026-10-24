@@ -42,6 +42,6 @@
     { "lang": "pt-BR", "name": "Português (Brasil)", "path": "lang/pt-BR.json" }
   ],
   "url": "https://github.com/Artemystra/eclipsephase-shop",
-  "manifest": "https://github.com/Artemystra/eclipsephase-shop/raw/v1.1/module.json",
-  "download": "https://github.com/Artemystra/eclipsephase-shop/archive/v1.1/eclipsephase-shop-v1.1.zip"
+  "manifest": "https://github.com/Artemystra/eclipsephase-shop/releases/latest/download/module.json",
+  "download": "https://github.com/Artemystra/eclipsephase-shop/releases/download/v1.1.0/eclipsephase-shop.zip"
 }

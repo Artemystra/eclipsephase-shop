@@ -30,6 +30,15 @@ jobs:
             exit 1
           fi
 
+      - name: Check the manifest is the rolling release alias, not a branch
+        run: |
+          expected="https://github.com/$GITHUB_REPOSITORY/releases/latest/download/module.json"
+          declared="$(jq -r .manifest module.json)"
+          if [ "$declared" != "$expected" ]; then
+            echo "A release must ship the rolling manifest, but module.json declares $declared"
+            exit 1
+          fi
+
       - name: Point the download at this release
         run: |
           jq --arg url "https://github.com/$GITHUB_REPOSITORY/releases/download/$GITHUB_REF_NAME/eclipsephase-shop.zip" \

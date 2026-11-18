@@ -149,6 +149,19 @@ class MockDocument {
     return this;
   }
 
+  async createEmbeddedDocuments(type, list = []) {
+    return list.map(data => {
+      const item = new MockItem({ ...deepClone(data), _id: randomID() }, this);
+      this.items.set(item.id, item);
+      return item;
+    });
+  }
+
+  async deleteEmbeddedDocuments(type, ids = []) {
+    for (const id of ids) this.items.delete(id);
+    return ids;
+  }
+
   toObject() {
     return deepClone({ ...this._source, type: this.type, system: this.system });
   }
@@ -180,6 +193,9 @@ class MockChatMessage {
   }
   static getSpeaker({ actor } = {}) {
     return { actor: actor?.id ?? null, alias: actor?.name ?? "" };
+  }
+  static getWhisperRecipients(name) {
+    return name === "GM" ? [global.game.users.activeGM] : [];
   }
 }
 
@@ -265,6 +281,7 @@ global.foundry = {
     mergeObject,
     getProperty,
     setProperty,
+    hasProperty: (object, key) => getProperty(object, key) !== undefined,
     randomID,
     isNewerVersion(a, b) {
       const pa = String(a).split(".").map(Number);
@@ -407,7 +424,7 @@ global.game = {
     }
   },
   eclipsephase: {
-    version: "2.5",
+    version: "2.7",
     api: {
       registry: { registerRollSource: () => true, registerSlot: () => true },
       actors: {},
